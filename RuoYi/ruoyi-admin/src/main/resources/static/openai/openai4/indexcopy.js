@@ -1,0 +1,721 @@
+// 是否发送
+let isSend = false;
+// 是否禁止滚动
+let disabledScroll = false
+//uuid
+//eventsource
+let eventsource;
+$(".menuBg").hide()
+$(".menuBg__right").hide()
+$(".menu").hide();
+$(".menu__right").hide();
+let messageId = 0;
+let mType = 1;
+let uuids = 0;
+
+let pageNum = 1;
+let pageSize = 10;
+let count = 1;
+let total = 0;
+
+
+getNotice('')
+connect();
+$(document).ready(function () {
+    hljs.initHighlightingOnLoad();
+    // 设置marked
+    marked.marked.setOptions({
+        renderer: new marked.Renderer(),
+        highlight: function (code, language) {
+            const validLang = !!(language && hljs.getLanguage(language))
+            // console.log(language);
+            if (validLang) {
+                const lang = language ?? ''
+                return highlightBlock(hljs.highlight(code, { language: lang }).value, lang)
+            }
+            return highlightBlock(hljs.highlightAuto(code).value, '')
+        },
+        pedantic: false,
+        gfm: true,
+        tables: true,
+        breaks: false,
+        sanitize: false,
+        smartLists: true,
+        smartypants: false,
+        xhtml: false,
+    });
+})
+function submitMessage() {
+    let content = $("#prompt-textarea").val();
+    let result = content.replace(/\s*/g, "");
+    // console.log(result);
+    // user question
+    let str = ` <div
+            class="text-gray-800 dark:text-gray-100 border-b border-black/10 dark:border-gray-900/50 dark:bg-gray-800"
+          >
+            <div
+              class="flex gap-4 text-base p-6 md:max-w-2xl lg:max-w-xl xl:max-w-3xl m-auto"
+            >
+              <div class="flex-shrink-0 w-8 h-8">
+                <img class="w-full h-full" src="/openai/openai4/avator.png" />
+              </div>
+              <div class="marked" >
+                  ${content}
+              </div>
+            </div>
+          </div>`;
+    $("#messageContent").append(str);
+    let leg = $(".marked").length;
+
+    var element = document.getElementsByClassName("marked")
+    $("#prompt-textarea").val("");
+    // $(".marked")[length-1].scrollIntoView();
+    element[element.length-1].scrollIntoView();
+    // 等待响应
+
+    sendMessage(content,messageId)
+}
+
+/*
+     @result 用户输入的内容
+  */
+function sendMessage(result,messageId) {
+    isSend = true;
+    // let pro = encodeURIComponent(result)
+    let str = `<div
+          class="group w-full text-gray-800 dark:text-gray-100 border-b border-black/10 dark:border-gray-900/50 bg-gray-50 dark:bg-[#444654]">
+          <div class="flex gap-4 text-base p-6 md:max-w-2xl lg:max-w-xl xl:max-w-3xl m-auto">
+            <div class="flex-shrink-0 w-8 h-8 text-white flex items-center justify-center"
+              style="background-color: rgb(25, 195, 125)">
+              <svg width="32" height="32" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg"
+                stroke-width="1.5" class="w-8 h-8" role="img">
+                <title>ChatGPT</title>
+                <text x="-9999" y="-9999">ChatGPT</text>
+                <path
+                  d="M37.5324 16.8707C37.9808 15.5241 38.1363 14.0974 37.9886 12.6859C37.8409 11.2744 37.3934 9.91076 36.676 8.68622C35.6126 6.83404 33.9882 5.3676 32.0373 4.4985C30.0864 3.62941 27.9098 3.40259 25.8215 3.85078C24.8796 2.7893 23.7219 1.94125 22.4257 1.36341C21.1295 0.785575 19.7249 0.491269 18.3058 0.500197C16.1708 0.495044 14.0893 1.16803 12.3614 2.42214C10.6335 3.67624 9.34853 5.44666 8.6917 7.47815C7.30085 7.76286 5.98686 8.3414 4.8377 9.17505C3.68854 10.0087 2.73073 11.0782 2.02839 12.312C0.956464 14.1591 0.498905 16.2988 0.721698 18.4228C0.944492 20.5467 1.83612 22.5449 3.268 24.1293C2.81966 25.4759 2.66413 26.9026 2.81182 28.3141C2.95951 29.7256 3.40701 31.0892 4.12437 32.3138C5.18791 34.1659 6.8123 35.6322 8.76321 36.5013C10.7141 37.3704 12.8907 37.5973 14.9789 37.1492C15.9208 38.2107 17.0786 39.0587 18.3747 39.6366C19.6709 40.2144 21.0755 40.5087 22.4946 40.4998C24.6307 40.5054 26.7133 39.8321 28.4418 38.5772C30.1704 37.3223 31.4556 35.5506 32.1119 33.5179C33.5027 33.2332 34.8167 32.6547 35.9659 31.821C37.115 30.9874 38.0728 29.9178 38.7752 28.684C39.8458 26.8371 40.3023 24.6979 40.0789 22.5748C39.8556 20.4517 38.9639 18.4544 37.5324 16.8707ZM22.4978 37.8849C20.7443 37.8874 19.0459 37.2733 17.6994 36.1501C17.7601 36.117 17.8666 36.0586 17.936 36.0161L25.9004 31.4156C26.1003 31.3019 26.2663 31.137 26.3813 30.9378C26.4964 30.7386 26.5563 30.5124 26.5549 30.2825V19.0542L29.9213 20.998C29.9389 21.0068 29.9541 21.0198 29.9656 21.0359C29.977 21.052 29.9842 21.0707 29.9867 21.0902V30.3889C29.9842 32.375 29.1946 34.2791 27.7909 35.6841C26.3872 37.0892 24.4838 37.8806 22.4978 37.8849ZM6.39227 31.0064C5.51397 29.4888 5.19742 27.7107 5.49804 25.9832C5.55718 26.0187 5.66048 26.0818 5.73461 26.1244L13.699 30.7248C13.8975 30.8408 14.1233 30.902 14.3532 30.902C14.583 30.902 14.8088 30.8408 15.0073 30.7248L24.731 25.1103V28.9979C24.7321 29.0177 24.7283 29.0376 24.7199 29.0556C24.7115 29.0736 24.6988 29.0893 24.6829 29.1012L16.6317 33.7497C14.9096 34.7416 12.8643 35.0097 10.9447 34.4954C9.02506 33.9811 7.38785 32.7263 6.39227 31.0064ZM4.29707 13.6194C5.17156 12.0998 6.55279 10.9364 8.19885 10.3327C8.19885 10.4013 8.19491 10.5228 8.19491 10.6071V19.808C8.19351 20.0378 8.25334 20.2638 8.36823 20.4629C8.48312 20.6619 8.64893 20.8267 8.84863 20.9404L18.5723 26.5542L15.206 28.4979C15.1894 28.5089 15.1703 28.5155 15.1505 28.5173C15.1307 28.5191 15.1107 28.516 15.0924 28.5082L7.04046 23.8557C5.32135 22.8601 4.06716 21.2235 3.55289 19.3046C3.03862 17.3858 3.30624 15.3413 4.29707 13.6194ZM31.955 20.0556L22.2312 14.4411L25.5976 12.4981C25.6142 12.4872 25.6333 12.4805 25.6531 12.4787C25.6729 12.4769 25.6928 12.4801 25.7111 12.4879L33.7631 17.1364C34.9967 17.849 36.0017 18.8982 36.6606 20.1613C37.3194 21.4244 37.6047 22.849 37.4832 24.2684C37.3617 25.6878 36.8382 27.0432 35.9743 28.1759C35.1103 29.3086 33.9415 30.1717 32.6047 30.6641C32.6047 30.5947 32.6047 30.4733 32.6047 30.3889V21.188C32.6066 20.9586 32.5474 20.7328 32.4332 20.5338C32.319 20.3348 32.154 20.1698 31.955 20.0556ZM35.3055 15.0128C35.2464 14.9765 35.1431 14.9142 35.069 14.8717L27.1045 10.2712C26.906 10.1554 26.6803 10.0943 26.4504 10.0943C26.2206 10.0943 25.9948 10.1554 25.7963 10.2712L16.0726 15.8858V11.9982C16.0715 11.9783 16.0753 11.9585 16.0837 11.9405C16.0921 11.9225 16.1048 11.9068 16.1207 11.8949L24.1719 7.25025C25.4053 6.53903 26.8158 6.19376 28.2383 6.25482C29.6608 6.31589 31.0364 6.78077 32.2044 7.59508C33.3723 8.40939 34.2842 9.53945 34.8334 10.8531C35.3826 12.1667 35.5464 13.6095 35.3055 15.0128ZM14.2424 21.9419L10.8752 19.9981C10.8576 19.9893 10.8423 19.9763 10.8309 19.9602C10.8195 19.9441 10.8122 19.9254 10.8098 19.9058V10.6071C10.8107 9.18295 11.2173 7.78848 11.9819 6.58696C12.7466 5.38544 13.8377 4.42659 15.1275 3.82264C16.4173 3.21869 17.8524 2.99464 19.2649 3.1767C20.6775 3.35876 22.0089 3.93941 23.1034 4.85067C23.0427 4.88379 22.937 4.94215 22.8668 4.98473L14.9024 9.58517C14.7025 9.69878 14.5366 9.86356 14.4215 10.0626C14.3065 10.2616 14.2466 10.4877 14.2479 10.7175L14.2424 21.9419ZM16.071 17.9991L20.4018 15.4978L24.7325 17.9975V22.9985L20.4018 25.4983L16.071 22.9985V17.9991Z"
+                  fill="currentColor"></path>
+              </svg>
+            </div>
+            <div class="marked openAi " style="overflow: hidden;" >
+             
+
+            </div>
+          </div>
+          <div class="flex py-3 justify-end pr-4">
+            <div style="display: inline-block" class="copyContent">
+                <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 " height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+            </div> 
+         </div>
+    </div>`
+    $("#messageContent").append(str);
+    // 进行禁用
+    disable()
+    //发送消息
+    send(result,messageId)
+}
+
+
+let test = ''
+function connect() {
+    var loginUserNum = user.userId;
+    var opts = {
+        query: 'loginUserNum=' + loginUserNum
+    };
+    socket = io.connect(socketIoUrl, opts);
+    socket.on('connect', function () {
+        serverOutput('<span class="connect-msg">连接成功</span>');
+    });
+    socket.on('push_event', function (data) {
+        if(data.content=="[DONE]"){
+            isSend = false;
+            addCopyEvent()
+            normal()
+            test = ''
+            if(mType==3 && total<=2){
+                getMenu('ChatGPT-PDF',messageId,uuids,mType);
+                // changeContent(mType,messageId,uuids,'ChatGPT-PDF');
+            }
+            getInfo();
+        }else{
+            let length = $(".openAi").length
+            test += data.content
+            $(".openAi").eq(length - 1).html(marked.parse(test))
+            let scrollHeight = $("#messageContent").prop("scrollHeight")
+            $("#messageContent").scrollTop(scrollHeight);
+        }
+
+    });
+
+    socket.on('disconnect', function () {
+        serverOutput('<span class="disconnect-msg">' + '已下线! </span>');
+    });
+}
+
+function output(message) {
+    var element = $("<div>" + " " + message + "</div>");
+    $('#console').prepend(element);
+}
+
+function serverOutput(message) {
+    var element = $("<div>" + message + "</div>");
+    $('#console').prepend(element);
+}
+
+/**
+ * 如果toUserId 没有值 就发给所有人 否则就发送给具体某个人
+ **/
+function send(pro,messageId) {
+    let temps = false;
+    if(uuids=="add35"){
+        uuids = randomString(32)
+        temps = true;
+    }else if(uuids=="add40"){
+        uuids = randomString(32)
+        temps = true;
+    }else if(uuids=="addAiPicture"){
+        uuids = randomString(32)
+        temps = true;
+    }else if(uuids=="addNetwork"){
+        uuids = randomString(32)
+        temps = true;
+    }
+
+    // if(mType==1 || mType==2 || mType==3 || mType==5 || mType==6){
+    //     temps = true;
+    // }
+
+    var data = {};
+    data.prompt = pro;
+    data.uuid = uuids;
+    data.mId = messageId;
+    $.ajax({
+        type: "post",
+        url: "/api/chat/chat",
+        data: data,
+        dataType: 'json',
+        success: function(result) {
+            if(result.code!=0){
+                window.location.reload();
+            }
+            if(temps){
+                getMenu('',messageId,uuids,mType)
+            }
+        },
+        error: function(error) {
+            isSend = false;
+            addCopyEvent()
+            copyContent()
+            normal()
+            test = ''
+        }
+    });
+    $("#prompt-textarea").css("height", "auto");
+}
+
+function highlightBlock(str, lang) {
+    return `<div class="bg-black rounded-md mb-4"><div class="flex items-center relative text-gray-200 bg-gray-800 px-4 py-2 text-xs font-sans justify-between rounded-t-md"><span>${lang}</span><button  class="copy-code flex ml-auto gap-2"><svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>Copy code</button></div><div class="p-4 overflow-y-auto"><code class="code-content !whitespace-pre hljs language-java">${str}</code></div></div>`
+}
+$("#messageContent").scroll(function (event) {
+    // console.log("event", $("#messageContent").prop("scrollHeight"));
+    // console.log("event2", $("#messageContent").prop("clientHeight"));
+    // console.log("event2", $("#messageContent").prop("scrollTop"));
+    disabledScroll = $("#messageContent").prop("scrollTop") + $("#messageContent").prop("clientHeight") <= $("#messageContent").prop("scrollHeight");
+    // console.log(disabledScroll);
+})
+
+function getFocus() {
+    // console.log("inty");
+    // $("#submit").removeAttr("disabled")
+}
+function getInput() {
+    // console.log($("#prompt-textarea").val().trim().length);
+    if ($("#prompt-textarea").val().trim().length == 0) {
+        // console.log("输入动作移除属性禁用");
+        $("#submit").attr("disabled")
+        // 切换样式
+        $("#submit").addClass("text-gray-400  bg-brand-purple")
+        $("#submit").removeClass("bg-green-400 ")
+
+    } else {
+        $("#submit").removeAttr("disabled")
+        $("#submit").removeClass("text-gray-400  bg-brand-purple")
+        $("#submit").addClass("bg-green-400 ")
+        // console.log($("#prompt-textarea")[0].scrollHeight);
+        $("#prompt-textarea").css("height", "auto");
+        $("#prompt-textarea").css("height", $("#prompt-textarea")[0].scrollHeight + "px");
+    }
+    /*
+      // 判断字符数量，如果字符的数量等于0那么就进行禁用
+      $("#submit").attr("disable", true) */
+
+}
+
+function disable() {
+    $("#submit").removeClass("block")
+    $("#loading").removeClass("hidden")
+    $("#loading").addClass("block")
+    $("#submit").addClass("hidden")
+}
+function normal() {
+    $("#loading").removeClass("block")
+    $("#submit").removeClass("hidden")
+    $("#loading").addClass("hidden")
+    $("#submit").addClass("block")
+}
+
+function addCopyEvent(){
+    // console.log($(".copy-code"));
+    // console.log(document.querySelectorAll('.copy-code'));
+    let nodeList = document.querySelectorAll('.copy-code')
+    let codeContent = document.querySelectorAll('.code-content')
+
+    if (nodeList.length==0) {
+        return
+    }
+    nodeList.forEach((element,index)=>{
+        element.addEventListener('click',function() {
+            // let code = element.innerText
+            let code = codeContent[index].innerText;
+            // console.log(code);
+            copyToClip(code,element)
+        })
+        // element.click(()=>{
+        //   let code = element.text()
+        //   console.log(code);
+        // })
+    })
+}
+function copyContent(params) {
+    let openAiContent =  document.querySelectorAll(".openAi");
+    let openAiBtn = document.querySelectorAll(".copyContent");
+    openAiBtn.forEach((element,index)=>{
+        // copyToClip()
+        element.addEventListener('click',function () {
+            let code=  openAiContent[index].innerText;
+            copyToClip(code,element)
+        })
+
+    })
+}
+
+function copyToClip(code,element) {
+    // 首先创建这个input div
+    let text = document.createElement('textarea');
+    //  设置文本只读
+    // text.setAttribute('readonly', 'readonly')
+    // 获取value进行赋值
+    text.value = code
+    element.innerHTML = "复制成功"
+    // 将textArea 添加到body中
+    document.body.appendChild(text)
+    // 选中文本
+    text.select()
+    // 调用剪切板的复制
+    document.execCommand('copy');
+    // 移除textarea元素
+    document.body.removeChild(text);
+}
+
+
+
+//生成指定长度的随机字符串的函数
+function randomString(len) {
+    len = len || 32;
+    var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz1234567890';
+    /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
+    var maxPos = $chars.length;
+    var pwd = '';
+    for (i = 0; i < len; i++) {
+        pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
+    }
+    return pwd;
+}
+
+$("#prompt-textarea").keydown((event)=>{
+    if (event.key === "Enter") {
+        if (event.shiftKey) {
+            // 换行
+        }else{
+            event.preventDefault(); // 阻止默认的换行行为
+            // console.log("提交表单");
+            if(!isSend){
+                submitMessage()
+            }
+        }
+
+    }else{
+        $("#prompt-textarea").css("height", "auto");
+        $("#prompt-textarea").css("height", $("#prompt-textarea")[0].scrollHeight + "px");
+    }
+})
+
+//历史消息回显
+
+loadingShow()
+// getMessage(pageNum,pageSize,"init",1)
+function getMessage(pageNum,pageSize,init,mId,uuids,mType) {
+    if(!temp) return
+    let formData = `pageNum=${pageNum}&pageSize=${pageSize}&mId=${mId}&uuid=${uuids}&orderByColumn=id&isAsc=desc`
+    fetch('/api/chat/chatDetailList',{
+        method:"post",
+        headers:{
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: formData
+    }).then(res=>{
+        return res.json()
+    }).then(res2=>{
+        if(res2.code!=0){
+            window.location.reload();
+        }
+        total = res2.total;
+        count = Math.ceil(total/pageSize);
+        // 进行页面的渲染
+        if (res2.rows.length>0) {
+            if(mType==3){
+                if(res2.rows.length==1){
+                    $("#sendBottom").hide();
+                }else{
+                    $("#sendBottom").show();
+                }
+            }
+            let res3 = res2.rows.reverse();
+            let str = ``
+            res3.forEach(item => {
+                uuids = item.uuid;
+                if (item.role == "user") {
+                    str += ` <div
+                  class="text-gray-800 dark:text-gray-100 border-b border-black/10 dark:border-gray-900/50 dark:bg-gray-800">
+                  <div
+                    class="flex gap-4 text-base p-6 md:max-w-2xl lg:max-w-xl xl:max-w-3xl m-auto">
+                    <div class="flex-shrink-0 w-8 h-8">
+                      <img class="w-full h-full" src="/openai/openai4/avator.png" />
+                    </div>
+                    <div class="marked" >
+                        ${item.content}
+                    </div>
+                  </div>
+                </div>`
+                }else{
+                    str += ` <div
+                      class="group w-full text-gray-800 dark:text-gray-100 border-b border-black/10 dark:border-gray-900/50 bg-gray-50 dark:bg-[#444654]">
+                      <div class="flex gap-4 text-base p-6 md:max-w-2xl lg:max-w-xl xl:max-w-3xl m-auto">
+                        <div class="flex-shrink-0 w-8 h-8 text-white flex items-center justify-center"
+                          style="background-color: rgb(25, 195, 125)">
+                          <svg width="32" height="32" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            stroke-width="1.5" class="w-8 h-8" role="img">
+                            <title>ChatGPT</title>
+                            <text x="-9999" y="-9999">ChatGPT</text>
+                            <path
+                              d="M37.5324 16.8707C37.9808 15.5241 38.1363 14.0974 37.9886 12.6859C37.8409 11.2744 37.3934 9.91076 36.676 8.68622C35.6126 6.83404 33.9882 5.3676 32.0373 4.4985C30.0864 3.62941 27.9098 3.40259 25.8215 3.85078C24.8796 2.7893 23.7219 1.94125 22.4257 1.36341C21.1295 0.785575 19.7249 0.491269 18.3058 0.500197C16.1708 0.495044 14.0893 1.16803 12.3614 2.42214C10.6335 3.67624 9.34853 5.44666 8.6917 7.47815C7.30085 7.76286 5.98686 8.3414 4.8377 9.17505C3.68854 10.0087 2.73073 11.0782 2.02839 12.312C0.956464 14.1591 0.498905 16.2988 0.721698 18.4228C0.944492 20.5467 1.83612 22.5449 3.268 24.1293C2.81966 25.4759 2.66413 26.9026 2.81182 28.3141C2.95951 29.7256 3.40701 31.0892 4.12437 32.3138C5.18791 34.1659 6.8123 35.6322 8.76321 36.5013C10.7141 37.3704 12.8907 37.5973 14.9789 37.1492C15.9208 38.2107 17.0786 39.0587 18.3747 39.6366C19.6709 40.2144 21.0755 40.5087 22.4946 40.4998C24.6307 40.5054 26.7133 39.8321 28.4418 38.5772C30.1704 37.3223 31.4556 35.5506 32.1119 33.5179C33.5027 33.2332 34.8167 32.6547 35.9659 31.821C37.115 30.9874 38.0728 29.9178 38.7752 28.684C39.8458 26.8371 40.3023 24.6979 40.0789 22.5748C39.8556 20.4517 38.9639 18.4544 37.5324 16.8707ZM22.4978 37.8849C20.7443 37.8874 19.0459 37.2733 17.6994 36.1501C17.7601 36.117 17.8666 36.0586 17.936 36.0161L25.9004 31.4156C26.1003 31.3019 26.2663 31.137 26.3813 30.9378C26.4964 30.7386 26.5563 30.5124 26.5549 30.2825V19.0542L29.9213 20.998C29.9389 21.0068 29.9541 21.0198 29.9656 21.0359C29.977 21.052 29.9842 21.0707 29.9867 21.0902V30.3889C29.9842 32.375 29.1946 34.2791 27.7909 35.6841C26.3872 37.0892 24.4838 37.8806 22.4978 37.8849ZM6.39227 31.0064C5.51397 29.4888 5.19742 27.7107 5.49804 25.9832C5.55718 26.0187 5.66048 26.0818 5.73461 26.1244L13.699 30.7248C13.8975 30.8408 14.1233 30.902 14.3532 30.902C14.583 30.902 14.8088 30.8408 15.0073 30.7248L24.731 25.1103V28.9979C24.7321 29.0177 24.7283 29.0376 24.7199 29.0556C24.7115 29.0736 24.6988 29.0893 24.6829 29.1012L16.6317 33.7497C14.9096 34.7416 12.8643 35.0097 10.9447 34.4954C9.02506 33.9811 7.38785 32.7263 6.39227 31.0064ZM4.29707 13.6194C5.17156 12.0998 6.55279 10.9364 8.19885 10.3327C8.19885 10.4013 8.19491 10.5228 8.19491 10.6071V19.808C8.19351 20.0378 8.25334 20.2638 8.36823 20.4629C8.48312 20.6619 8.64893 20.8267 8.84863 20.9404L18.5723 26.5542L15.206 28.4979C15.1894 28.5089 15.1703 28.5155 15.1505 28.5173C15.1307 28.5191 15.1107 28.516 15.0924 28.5082L7.04046 23.8557C5.32135 22.8601 4.06716 21.2235 3.55289 19.3046C3.03862 17.3858 3.30624 15.3413 4.29707 13.6194ZM31.955 20.0556L22.2312 14.4411L25.5976 12.4981C25.6142 12.4872 25.6333 12.4805 25.6531 12.4787C25.6729 12.4769 25.6928 12.4801 25.7111 12.4879L33.7631 17.1364C34.9967 17.849 36.0017 18.8982 36.6606 20.1613C37.3194 21.4244 37.6047 22.849 37.4832 24.2684C37.3617 25.6878 36.8382 27.0432 35.9743 28.1759C35.1103 29.3086 33.9415 30.1717 32.6047 30.6641C32.6047 30.5947 32.6047 30.4733 32.6047 30.3889V21.188C32.6066 20.9586 32.5474 20.7328 32.4332 20.5338C32.319 20.3348 32.154 20.1698 31.955 20.0556ZM35.3055 15.0128C35.2464 14.9765 35.1431 14.9142 35.069 14.8717L27.1045 10.2712C26.906 10.1554 26.6803 10.0943 26.4504 10.0943C26.2206 10.0943 25.9948 10.1554 25.7963 10.2712L16.0726 15.8858V11.9982C16.0715 11.9783 16.0753 11.9585 16.0837 11.9405C16.0921 11.9225 16.1048 11.9068 16.1207 11.8949L24.1719 7.25025C25.4053 6.53903 26.8158 6.19376 28.2383 6.25482C29.6608 6.31589 31.0364 6.78077 32.2044 7.59508C33.3723 8.40939 34.2842 9.53945 34.8334 10.8531C35.3826 12.1667 35.5464 13.6095 35.3055 15.0128ZM14.2424 21.9419L10.8752 19.9981C10.8576 19.9893 10.8423 19.9763 10.8309 19.9602C10.8195 19.9441 10.8122 19.9254 10.8098 19.9058V10.6071C10.8107 9.18295 11.2173 7.78848 11.9819 6.58696C12.7466 5.38544 13.8377 4.42659 15.1275 3.82264C16.4173 3.21869 17.8524 2.99464 19.2649 3.1767C20.6775 3.35876 22.0089 3.93941 23.1034 4.85067C23.0427 4.88379 22.937 4.94215 22.8668 4.98473L14.9024 9.58517C14.7025 9.69878 14.5366 9.86356 14.4215 10.0626C14.3065 10.2616 14.2466 10.4877 14.2479 10.7175L14.2424 21.9419ZM16.071 17.9991L20.4018 15.4978L24.7325 17.9975V22.9985L20.4018 25.4983L16.071 22.9985V17.9991Z"
+                              fill="currentColor"></path>
+                          </svg>
+                        </div>
+                        <div class="" style="overflow: hidden;width: 100%">
+                          <div class="marked openAi " style="overflow: hidden;flex: 1;">
+                          ${marked.parse(item.content)} 
+                      </div>
+                    </div></div>
+                     <div class="flex py-3 justify-end pr-4">
+                        <div style="display: inline-block" class="copyContent">
+                            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 " height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                        </div> 
+                     </div>
+                </div>`
+                }
+            });
+            if (init == "init") {
+                $("#messageContent").append(str);
+                // $("#messageContent").scrollTop(300)
+                $("#messageContent").animate({scrollTop:$("#messageContent").height()})
+                // console.log();
+                loadingHide()
+            }else{
+                let height = $("#messageContent")[0].scrollHeight
+
+                $("#messageContent").prepend(str);
+                let top = $("#messageContent")[0].scrollHeight-height
+
+                $("#messageContent").scrollTop(top)
+            }
+            addCopyEvent()
+            copyContent()
+        }else{
+            if (init=="orther") {
+                tispFun("暂无更多数据",1500)
+            }
+            loadingHide()
+
+            if(mId==30){
+                $("#sendBottom").hide();
+            }
+        }
+    })
+}
+
+
+// 滚动监听 messageContent
+$("#messageContent").scroll(function (event) {
+    if(!temp) return
+    let event2 = $("#messageContent").prop("scrollTop");
+    if (event2==0) {
+        if(pageNum>=count){
+            tispFun("暂无更多数据",1500)
+        }else{
+            pageNum+=1;
+            getMessage(pageNum,pageSize,"orther",messageId,uuids,mType)
+        }
+    }
+})
+
+// 点击左侧菜单进行切换
+function openMenu() {
+    //切换图片和背景
+    $(".menuBg").show()
+    $(".menu").show();
+    $(".menu").removeClass("animate__slideOutLeft")
+    $(".menu").addClass("animate__slideInLeft");
+}
+// 点击空白页面进行收缩。
+function hidePage() {
+    $(".menuBg").hide()
+    $(".menu").removeClass("animate__slideInLeft");
+    $(".menu").addClass("animate__slideOutLeft");
+    //  $(".menu").hide()
+}
+function openSetting() {
+    $(".menuBg__right").show()
+    $(".menu__right").show()
+    $(".menu__right").removeClass("animate__slideOutRight")
+    $(".menu__right").addClass("animate__slideInRight")
+}
+
+// 点击空白页面进行收缩。
+function hideSetPage() {
+    $(".menuBg__right").hide()
+    $(".menu__right").removeClass("animate__slideInRight");
+    $(".menu__right").addClass("animate__slideOutRight");
+}
+// pc 头像的菜单
+let dispaly = false
+function openPcMenu() {
+    dispaly = !dispaly
+    if (dispaly) {
+        $(".pc__menu").show()
+    }else{
+        $(".pc__menu").hide()
+    }
+
+}
+// pc 收缩展开
+let pc_left = false
+function expand() {
+    pc_left = !pc_left
+    if (pc_left) {
+        //  $(".pc__menu__left").removeClass("animate__slideOutLeft")
+        //  $(".pc__menu__left").addClass("animate__slideInLeft")
+        $(".pc__menu__left").hide()
+
+    }else{
+        //  $(".pc__menu__left").removeClass("animate__slideInLeft")
+        //  $(".pc__menu__left").addClass("animate__slideOutLeft")
+        $(".pc__menu__left").show()
+    }
+}
+
+
+function feedback(){
+    tispFun("可以进群进行反馈!",1500)
+    window.location.href="/kefu"
+}
+
+
+function partner(){
+    window.location.href="/partner"
+}
+
+function goPage(type,page){
+    temp = false;
+    if (type=='mobile'){
+        hideSetPage()
+    }
+    loadingShow()
+    $.ajax({
+        url: "/"+page,
+        type: 'get',
+        dataType: 'html',
+        success: function (data) {
+            try {
+                data = JSON.parse(data);
+                if(data.code==1){
+                    window.location.reload();
+                }else{
+                    $("#messageContent").html("");
+                    $("#messageContent").html(data);
+                    $("#sendBottom").hide();
+                }
+            } catch (error) {
+                $("#messageContent").html("");
+                $("#messageContent").html(data);
+                $("#sendBottom").hide();
+                // element.init();
+            }
+            loadingHide()
+        },
+        error: function (xhr, textstatus, thrown) {
+            loadingHide()
+        }
+    });
+}
+
+function logout(){
+    window.location.href = "/logout";
+}
+
+function searchMenu(type){
+    let searchName = '';
+    if(type==0){
+        searchName = $("#pcSearchName").val();
+    }else{
+        searchName = $("#mobileSearchName").val();
+        return;
+    }
+    tispFun("暂未开放",1500)
+    // getMenu(searchName)
+}
+
+function uploadFile(){
+
+    let multipartFile = document.getElementById("myFile").files[0]
+    var isGT5M = multipartFile.size / 1024 /1024 > 5;
+    if(isGT5M){
+        return alert("对不起您上传的文件大于5M,请尝试拆分文档再进行上传");
+    }
+
+    if(uuids=="addpdf"){
+        uuids = randomString(32)
+        temps = true;
+    }
+
+    mType = 3;
+    let formData = new FormData();
+
+    formData.append('multipartFile', multipartFile);
+    formData.append('uuid', uuids);
+    formData.append('mId', messageId);
+    loadingShow()
+    fetch('/api/chat/uploadFile',{
+        method:'POST',
+        body:formData
+    })
+    .then(function(response) {
+        loadingHide()
+        return response.json();
+    })
+    .then(function(myJson) {
+        loadingHide()
+        console.log(myJson);
+    });
+}
+
+
+
+function uploadPicture(){
+    let multipartFile = document.getElementById("myPicture").files[0]
+    var isGT5M = multipartFile.size / 1024 /1024 > 3;
+    if(isGT5M){
+        return alert("对不起您上传的图片大于3M,请重新上传");
+    }
+    if(uuids=="addAiPicture"){
+        uuids = randomString(32)
+        temps = true;
+    }
+    mType = 5;
+
+    let formData = new FormData();
+
+    formData.append('multipartFile', multipartFile);
+    formData.append('uuid', uuids);
+    formData.append('mId', messageId);
+    loadingShow()
+    fetch('/api/chat/uploadPicture',{
+        method:'POST',
+        body:formData
+    })
+    .then(function(response) {
+        loadingHide()
+        return response.json();
+    })
+    .then(function(myJson) {
+        getMenu('',messageId,uuids,mType)
+    });
+}
+
+function getNotice(type){
+    let formData = new FormData();
+    formData.append('type',type)
+    fetch('/api/chat/getNotice',{
+        method:'POST',
+        body:formData
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(res2) {
+        if(res2.code!=0){
+            window.location.reload();
+        }
+        if(res2.data!=null){
+            $(".web_notice").show();
+            $("#web_notice_title").text(res2.data.noticeTitle);
+            $("#web_notice_content").html(res2.data.noticeContent);
+        }else{
+            $(".web_notice").hide();
+        }
+
+    });
+}
+
+function okRead(){
+    let formData = new FormData();
+    fetch('/api/chat/okayRead',{
+        method:'POST',
+        body:formData
+    })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(res2) {
+            if (res2.code != 0) {
+                window.location.reload();
+            }
+            $(".web_notice").hide();
+        })
+}
+
+if(user.permissions==1){
+    $(".partner").show();
+}
+
+function getInfo(){
+    fetch('/api/chat/getInfo',{
+        method:'POST',
+        body: {}
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(res2) {
+        if (res2.code != 0) {
+            window.location.reload();
+        }
+        $(".loginName").text(res2.data.loginName);
+        $(".freeTime").text(res2.data.freeTime);
+        $(".moneyTime").text(res2.data.moneyTime);
+        $(".moneyTimeFour").text(res2.data.moneyTimeFour);
+        $(".expirationTime").text(res2.data.expirationTime);
+        $(".mjFreeTime").text(res2.data.mjFreeTime);
+        $(".midjourney").text(res2.data.midjourney);
+        $(".dallETime").text(res2.data.dallETime);
+    })
+}

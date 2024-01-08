@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.openai.mapper.OpenaiApiKeyMapper">
+    
+    <resultMap type="OpenaiApiKey" id="OpenaiApiKeyResult">
+        <result property="id"    column="id"    />
+        <result property="apiKey"    column="api_key"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="updateBy"    column="update_by"    />
+    </resultMap>
+
+    <sql id="selectOpenaiApiKeyVo">
+        select id, api_key, status, remark, create_time, update_time, create_by, update_by from openai_api_key
+    </sql>
+
+    <select id="selectOpenaiApiKeyList" parameterType="OpenaiApiKey" resultMap="OpenaiApiKeyResult">
+        <include refid="selectOpenaiApiKeyVo"/>
+        <where>  
+            <if test="apiKey != null  and apiKey != ''"> and api_key = #{apiKey}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectOpenaiApiKeyById" parameterType="Long" resultMap="OpenaiApiKeyResult">
+        <include refid="selectOpenaiApiKeyVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertOpenaiApiKey" parameterType="OpenaiApiKey" useGeneratedKeys="true" keyProperty="id">
+        insert into openai_api_key
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="apiKey != null and apiKey != ''">api_key,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateBy != null">update_by,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="apiKey != null and apiKey != ''">#{apiKey},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+         </trim>
+    </insert>
+
+    <update id="updateOpenaiApiKey" parameterType="OpenaiApiKey">
+        update openai_api_key
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="apiKey != null and apiKey != ''">api_key = #{apiKey},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteOpenaiApiKeyById" parameterType="Long">
+        delete from openai_api_key where id = #{id}
+    </delete>
+
+    <delete id="deleteOpenaiApiKeyByIds" parameterType="String">
+        delete from openai_api_key where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

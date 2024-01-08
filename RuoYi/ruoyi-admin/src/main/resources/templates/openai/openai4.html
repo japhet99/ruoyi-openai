@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html>
+<meta name="viewport"
+  content="width=device-width, initial-scale=1.0,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
+
+<head>
+  <meta charset="utf-8" />
+  <title>AI-Chat聊天</title>
+  <link rel="stylesheet" href="/openai/openai4/highlight.css" th:href="@{/openai/openai4/highlight.css(v=${version})}"/>
+  <link rel="stylesheet" href="/openai/openai4/tailwind.css" th:href="@{/openai/openai4/tailwind.css(v=${version})}"/>
+  <link rel="stylesheet" href="/openai/openai4/h5-loading.css" th:href="@{/openai/openai4/h5-loading.css(v=${version})}"/>
+  <link rel="stylesheet" href="/openai/openai4/indexcopy.css" th:href="@{/openai/openai4/indexcopy.css(v=${version})}"/>
+  <link rel="stylesheet" href="/openai/openai4/animate.min.css" th:href="@{/openai/openai4/animate.min.css(v=${version})}"/>
+</head>
+
+<body>
+  <style>
+    html,
+    body {
+      font-size: 16px;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-size: inherit;
+      font-weight: inherit;
+    }
+
+    [contenteditable]:focus {
+      outline: none;
+    }
+
+    .markdown {
+      max-width: none;
+      background-color: transparent;
+    }
+
+    .markdown pre {
+      background-color: rgba(17, 24, 39, 1);
+    }
+
+    ol li {
+      list-style: decimal !important;
+    }
+
+    ul li {
+      list-style-type: circle;
+    }
+
+    .markdown ol {
+      counter-reset: item;
+    }
+
+    .markdown ol,
+    .markdown ul {
+      display: flex;
+      flex-direction: column;
+      padding-left: 1rem;
+    }
+
+    .prose :where(pre):not(:where([class~=not-prose] *)) {
+      background-color: transparent;
+      border-radius: .375rem;
+      color: currentColor;
+      font-size: .875em;
+      font-weight: 400;
+      line-height: 1.7142857;
+      margin: 0;
+      overflow-x: auto;
+      padding: 0;
+    }
+
+    :root {
+      --x: 10;
+      --y: 20;
+
+    }
+
+    .cursor {
+      position: absolute;
+      top: var(--x)"px";
+      left: var(--y)"px";
+      /* bottom: 0; */
+      width: 8px;
+      height: 20px;
+      background-color: black;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    /* 设置滚动条的样式 */
+    ::-webkit-scrollbar {
+      width: 4px;
+      /* 滚动条的宽度 */
+    }
+
+    /* 设置滚动条的轨道背景样式 */
+    /* ::-webkit-scrollbar-track {
+  background-color: #f1f1f1; 
+} */
+    /* 设置滚动条的滑块样式 */
+    ::-webkit-scrollbar-thumb {
+      background-color: #d1cccc;
+      /* 滑块颜色 */
+      border-radius: 2px;
+    }
+
+    /* 设置滚动条的滑块在悬停状态时的样式 */
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: #555;
+      /* 悬停状态下的滑块颜色 */
+    }
+
+    ul li {
+      list-style: none;
+      padding: 0px;
+      margin: 0px;
+    }
+
+    .dataMode:hover .closeIcon{
+        display: block;
+    }
+
+
+    .upload-container {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 1px dashed #333;
+    }
+
+    input[type="file"] {
+        position: absolute;
+        opacity: 0;
+        width: 100px;
+        height: 100px;
+        overflow: hidden;
+        z-index: 10;
+    }
+    /*
+    #upload-status::before {
+      content: "";
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #999;
+      border-top-color: #333;
+      border-radius: 50%;
+      animation: spin 1s infinite linear;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    } */
+
+    .web_notice {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 99999;
+        display: none;
+    }
+
+    .web_notice2 {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        background: #FFF;
+        transform: translate(-50%, -50%);
+        border-radius: 40px;
+        padding: 50px 40px;
+    }
+
+    .web_notice_h3 {
+        font-weight: bold;
+        text-align: center;
+        font-size: 30px;
+    }
+
+    .web_notice_div {
+        font-size: 16px;
+        margin-top: 26px;
+        line-height: 30px;
+        color: #999;
+    }
+
+    .web_notice_a {
+        display: block;
+        background: #85c9eb;
+        color: #FFF;
+        text-align: center;
+        font-weight: bold;
+        font-size: 19px;
+        line-height: 60px;
+        margin: 0 auto;
+        margin-top: 45px;
+        border-radius: 32px;
+        width: 80%;
+        cursor: pointer;
+    }
+
+    @media (min-width: 320px ) {
+        .web_notice2{
+            width:90%
+        }
+    }
+    @media (min-width: 480px) and (max-width:768px){
+        .web_notice2{
+            width:80%
+        }
+    }
+    @media (min-width: 768px) {
+        .web_notice2{
+            width:500px
+        }
+    }
+    .menuList ol, .menuList ul{
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+  </style>
+  <div class="relative w-full h-full">
+    <div class="flex w-full h-full overflow-hidden">
+      <!-- <div class="hidden">手机型号进行的展示内容</div> -->
+      <!-- pc端菜单栏 -->
+      <div class="pc__menu__left animate__animated dark flex-shrink-0 bg-gray-900 w-64 text-white hidden md:block">
+        <div class="h-screen box-border overflow-hidden">
+            <div class=" p-4 flex flex-col bgColor"
+            style="color: white;height: 100%">
+            <div class="flex-shrink-0 box-border">
+              <div style="height: 50px;" class=" flex items-center justify-center border border-white">
+                  AI-Chat
+              </div>
+             <!--<div
+               class="search-box my-3 rounded-lg h-8 border-white  border flex items-center px-2 box-border w-full overflow-hidden">
+                <div><svg t="1688570534466" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                xmlns="http://www.w3.org/2000/svg" p-id="2292" xmlns:xlink="http://www.w3.org/1999/xlink" width="28"
+                height="28">
+                <path
+                  d="M955.069071 864.311021 740.015134 649.258107c-3.752464-3.751441-8.841366-5.860475-14.149255-5.860475-5.306866 0-10.395768 2.108011-14.149255 5.860475l-16.692171 16.692171-38.34226-38.34226c53.03796-59.810201 85.298711-138.442072 85.298711-224.478588 0-186.774871-151.952784-338.727655-338.727655-338.727655S64.527642 216.35456 64.527642 403.12943c0 186.775894 151.952784 338.728678 338.727655 338.728678 86.36909 0 165.276231-32.510438 225.170343-85.913718l38.303374 38.303374-17.34504 17.34504c-7.812943 7.813966-7.812943 20.48352 0 28.297486l215.051891 215.052914c3.753487 3.751441 8.841366 5.860475 14.149255 5.860475 5.306866 0 10.395768-2.108011 14.149255-5.860475l62.334697-62.334697C962.883037 884.794541 962.883037 872.124987 955.069071 864.311021zM104.546078 403.12943c0-164.709319 133.9999-298.709219 298.709219-298.709219s298.709219 133.9999 298.709219 298.709219S567.964616 701.839673 403.255297 701.839673 104.546078 567.838749 104.546078 403.12943zM878.585119 912.496463 691.829691 725.741036l34.036187-34.036187 186.755428 186.755428L878.585119 912.496463z"
+                  fill="white" p-id="2293"></path>
+                 </svg></div>
+                 <input  type="text" class="w-full " style="color:black" id="pcSearchName" oninput="searchMenu(0)">
+             </div>-->
+          </div>
+        <div id="menu" class="overflow-y-auto menuList" style="height: calc(100vh - 121px);">
+
+        </div>
+            </div>
+        </div>
+      </div>
+
+      <div class="flex-1 relative overflow-hidden w-full h-full">
+        <div class="sticky top-0 text-gray-200 z-10 bgColor h-12 px-2 flex items-center justify-around md:hidden "
+          >
+          <div class="w-7 h-7 "onclick="openMenu()">
+            <svg class="icon w-full h-full " fill="currentColor" viewBox="0 0 1024 1024" version="1.1"
+              xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+              <path
+                d="M757.76 319.146667c-10.24-8.533333-25.6-11.946667-39.253333-5.12-11.946667 5.12-18.773333 17.066667-18.773334 29.013333v360.106667c0 11.946667 6.826667 23.893333 18.773334 29.013333 5.12 1.706667 10.24 3.413333 15.36 3.413333 8.533333 0 17.066667-3.413333 23.893333-8.533333L969.386667 546.133333c6.826667-6.826667 11.946667-15.36 11.946666-23.893333 0-8.533333-3.413333-17.066667-11.946666-23.893333L757.76 319.146667zM66.56 109.226667H955.733333c18.773333 0 32.426667-15.36 32.426667-32.426667S972.8 44.373333 955.733333 44.373333H66.56c-17.066667-1.706667-32.426667 13.653333-32.426667 32.426667s15.36 32.426667 32.426667 32.426667zM66.56 399.36h481.28c18.773333 0 32.426667-15.36 32.426667-32.426667s-15.36-32.426667-32.426667-32.426666H66.56c-18.773333 0-32.426667 15.36-32.426667 32.426666s15.36 32.426667 32.426667 32.426667zM66.56 689.493333h481.28c18.773333 0 32.426667-15.36 32.426667-32.426666 0-18.773333-15.36-32.426667-32.426667-32.426667H66.56c-18.773333 0-32.426667 15.36-32.426667 32.426667 0 18.773333 15.36 32.426667 32.426667 32.426666zM957.44 914.773333H66.56c-18.773333 0-32.426667 15.36-32.426667 32.426667 0 18.773333 15.36 32.426667 32.426667 32.426667H955.733333c18.773333 0 32.426667-15.36 32.426667-32.426667 1.706667-17.066667-13.653333-32.426667-30.72-32.426667z">
+              </path>
+            </svg>
+          </div>
+          <div class="truncate  flex-1 w-0 text-center content_title">
+            <!-- 循环列表标题，多出的进行溢出处理 -->
+            欢迎使用AI-Chat
+          </div>
+          <div class="w-8 h-8 rounded-full" onclick="openSetting()">
+            <img class="w-full h-full" src="/openai/openai4/avator.png" alt="" srcset="">
+          </div>
+        </div>
+        <div>
+        </div>
+        <!-- pc的菜单栏 -->
+        <div class="hidden md:block w-full h-16 bgColor text-white sticky " style="z-index: 1">
+          <div class="flex justify-between w-full h-full px-4">
+            <div class="head__left h-full">
+                <div class="flex justify-center items-center h-full " onclick="expand()">
+                  <svg t="1689164321721" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6642"
+                   xmlns:xlink="http://www.w3.org/1999/xlink" width="30" height="30"><path d="M937.387 488.107L772.267 372.48c-12.8-9.387-30.294-6.827-40.107 5.547-3.84 4.693-5.547 10.666-5.547 17.066v233.814c0 22.613 25.6 36.693 45.654 22.613l165.546-115.627c14.08-14.08 14.08-36.693-0.426-47.786z m-23.04-274.774H129.28c-18.773 0-34.133-15.36-34.133-34.133s15.36-34.133 34.133-34.133h785.067c18.773 0 34.133 15.36 34.133 34.133s-14.933 34.133-34.133 34.133z m0 665.6H129.28c-18.773 0-34.133-15.36-34.133-34.133s15.36-34.133 34.133-34.133h785.067c18.773 0 34.133 15.36 34.133 34.133s-14.933 34.133-34.133 34.133zM624.213 435.2H129.28c-18.773 0-34.133-15.36-34.133-34.133s15.36-34.134 34.133-34.134h494.933c18.774 0 34.134 15.36 34.134 34.134S643.413 435.2 624.213 435.2z m0.427 221.867H129.28c-18.773 0-34.133-15.36-34.133-34.134s15.36-34.133 34.133-34.133h495.36c18.773 0 34.133 15.36 34.133 34.133v0.427c-0.426 18.347-15.36 33.707-34.133 33.707z" fill="#ffffff" p-id="6643"></path></svg>
+                </div>
+            </div>
+            <div class="head__right flex justify-end  px-4">
+
+
+            <div class="flex justify-center items-center ml-4" >
+                <a target="_blank" href="/dalle3"><img class="rounded-full w-10 h-10" src="/openai/openai4/dalle.png" alt=""></a>
+            </div>
+
+            <div class="flex justify-center items-center ml-4">
+                <a target="_blank" href="/mj"><img class="rounded-full w-10 h-10" src="/openai/openai4/mj.png" alt=""></a>
+            </div>
+            <div class="flex justify-center items-center ml-4" ></div>
+
+              <div class="flex justify-center items-center relative">
+
+                  <img class="rounded-full w-10 h-10 avator__img  " src="/openai/openai4/avator.png" alt="">
+                  <div class=" absolute top-12 -right-28 pc__menu  rounded-md bg-white text-black  text-gray-400">
+                      <!--  <div class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                         <div  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" >续费订阅</div>
+                         <div class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">我的设置</div>
+                         <div class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">登出</div>
+                       </div> -->
+                      <div class="flex items-center justify-between text-xs px-4 py-1 ">
+                          <div>
+                              登录名：
+                          </div>
+                          <div class="text-black loginName" th:text="${user.loginName}"></div>
+                      </div>
+                      <div class="flex items-center justify-between text-xs px-4 py-1 ">
+                          <div>
+                              每日免费次数：
+                          </div>
+                          <div class="text-black freeTime" th:text="${freeTime}"></div>
+                      </div>
+                      <div class="flex items-center justify-between text-xs px-4 py-1 ">
+                          <div>AI-Chat3.5次数：</div>
+                          <div class="text-black moneyTime" th:text="${moneyTime}"></div>
+                      </div>
+
+                      <div class="flex items-center justify-between text-xs px-4 py-1">
+                          <div>AI-Chat4.0次数：</div>
+                          <div class="text-black moneyTimeFour" th:text="${moneyTimeFour}"></div>
+                      </div>
+
+                      <div class="flex items-center justify-between text-xs px-4 py-1">
+                          <div>3.5 到期时间：</div>
+                          <div class="text-black expirationTime" th:text="${expirationTime}"></div>
+                      </div>
+
+
+                      <div class="flex items-center justify-between text-xs px-4 py-1">
+                          <div>midjourney 免费次数：</div>
+                          <div class="text-black mjFreeTime" th:text="${mjFreeTime}"></div>
+                      </div>
+                      <div class="flex items-center justify-between text-xs px-4 py-1">
+                          <div>midjourney 次数：</div>
+                          <div class="text-black mjMoneyTime" th:text="${mjMoneyTime}"></div>
+                      </div>
+                      <div class="flex items-center justify-between text-xs px-4 py-1">
+                          <div>DALL.E 次数：</div>
+                          <div class="text-black dallETime" th:text="${dallETime}"></div>
+                      </div>
+
+                      <div class="hidden">
+                          <div></div>
+                      </div>
+                      <div class="mt-10">
+                          <div class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 rounded-lg flex justify-between items-center" onclick="goPage('pc','price')">
+                              <div class="flex justify-between items-center">
+                                  <div class="mr-2">
+                                      <svg t="1689584989453" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4409" xmlns:xlink="http://www.w3.org/1999/xlink" width="18" height="18"><path d="M879.570052 604.289939l-57.671491 0 0.063445 315.00844c-0.005117 2.690272-0.167822 4.242627-0.319272 5.110391-1.485841-0.029676-2.90619-0.385786-3.527336-0.575098l-274.015817-162.930813c-2.408863-1.385557-15.283078-8.293897-32.145118-8.293897-15.418154 0-27.259854 5.619998-31.633465 8.037047l-277.131785 163.945933c-0.075725 0.016373-0.149403 0.031722-0.220011 0.047072-0.540306-0.596588-0.843204-1.451048-0.918929-1.787716l0.01842-793.842063c0-38.714743 30.705326-70.210062 68.447928-70.210062l482.860333 0c37.722136 0 68.412113 31.495318 68.412113 70.210062l0.020466 76.918857 57.667398 0 0-76.918857c0-71.136154-56.568367-129.008212-126.099976-129.008212l-482.860333 0c-69.536726 0-126.108163 57.873082-126.108163 129.008212l-0.027629 893.571439 7.036253-2.99931c47.444569-20.218484 340.53379-197.638289 356.509646-207.315696 0.623193-0.25685 2.369977-0.856507 4.02978-0.856507 1.068332 0 2.503007 0.286526 3.980661 0.793062 12.633738 7.54586 284.356326 169.773661 356.302939 207.212342l7.389294 3.845585L879.570052 604.289939z" p-id="4410"></path><path d="M739.708654 591.286788 739.708654 448.048479 879.62224 448.048479 879.62224 389.269771 739.708654 389.269771 739.708654 246.029416 682.065815 246.029416 682.065815 389.269771 542.168602 389.269771 542.168602 448.048479 682.065815 448.048479 682.065815 591.286788Z" p-id="4411"></path></svg>
+                                  </div>
+                                  <div>订阅套餐</div>
+                              </div>
+                              <img class="w-3 h-3 block" src="/openai/openai4/right-arrow.png" alt="">
+                          </div>
+                          <div class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 rounded-lg flex justify-between items-center" onclick="feedback()">
+                              <div class="flex justify-between items-center">
+                                  <div class="mr-2">
+                                      <svg t="1689585529819" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5402" xmlns:xlink="http://www.w3.org/1999/xlink" width="18" height="18"><path d="M512 697.6c102.4 0 182.4-83.2 182.4-185.6 0-102.4-83.2-185.6-182.4-185.6-102.4 0-182.4 83.2-182.4 185.6C329.6 614.4 412.8 697.6 512 697.6L512 697.6zM512 646.4c-73.6 0-134.4-60.8-134.4-134.4 0-73.6 60.8-134.4 134.4-134.4 73.6 0 134.4 60.8 134.4 134.4C646.4 585.6 585.6 646.4 512 646.4L512 646.4z" p-id="5403"></path><path d="M249.015232 843.178592c35.2 28.8 73.6 51.2 112 67.2 41.6-38.4 96-60.8 150.4-60.8 57.6 0 108.8 22.4 150.4 60.8 41.6-16 80-38.4 112-67.2-12.8-54.4-3.2-112 22.4-163.2 28.8-48 73.6-86.4 128-102.4 3.2-22.4 6.4-44.8 6.4-67.2 0-22.4-3.2-44.8-6.4-67.2-54.4-16-99.2-54.4-128-102.4-28.8-48-35.2-108.8-22.4-163.2-35.2-28.8-73.6-51.2-112-67.2-41.6 38.4-92.8 60.8-150.4 60.8-54.4 0-108.8-22.4-150.4-60.8-41.6 16-80 38.4-112 67.2 12.8 54.4 3.2 112-22.4 163.2-28.8 48-73.6 86.4-128 102.4-3.2 22.4-6.4 44.8-6.4 67.2 0 22.4 3.2 44.8 6.4 67.2 54.4 16 99.2 54.4 128 102.4C252.215232 731.178592 261.815232 788.778592 249.015232 843.178592M361.015232 958.378592c-54.4-19.2-105.6-48-150.4-89.6-6.4-6.4-9.6-16-6.4-22.4 16-48 9.6-99.2-16-140.8-25.6-44.8-64-73.6-112-83.2-9.6-3.2-16-9.6-16-19.2-6.4-28.8-9.6-60.8-9.6-89.6 0-28.8 3.2-57.6 9.6-89.6 3.2-9.6 9.6-16 16-19.2 48-12.8 89.6-41.6 112-83.2 25.6-44.8 28.8-92.8 16-140.8-3.2-9.6 0-19.2 6.4-22.4 44.8-38.4 96-67.2 150.4-89.6 9.6-3.2 16 0 22.4 6.4 35.2 35.2 80 57.6 128 57.6 48 0 96-19.2 128-57.6 6.4-6.4 16-9.6 22.4-6.4 54.4 19.2 105.6 48 150.4 89.6 6.4 6.4 9.6 16 6.4 22.4-16 48-9.6 99.2 16 140.8 25.6 44.8 64 73.6 112 83.2 9.6 3.2 16 9.6 16 19.2 6.4 28.8 9.6 60.8 9.6 89.6 0 28.8-3.2 57.6-9.6 89.6-3.2 9.6-9.6 16-16 19.2-48 12.8-89.6 41.6-112 83.2-25.6 44.8-28.8 92.8-16 140.8 3.2 9.6 0 19.2-6.4 22.4-44.8 38.4-96 67.2-150.4 89.6-9.6 3.2-16 0-22.4-6.4-35.2-35.2-80-57.6-128-57.6-48 0-96 19.2-128 57.6-3.2 3.2-9.6 6.4-16 6.4C364.215232 958.378592 361.015232 958.378592 361.015232 958.378592z" p-id="5404"></path></svg>
+                                  </div>
+                                  <div>问题反馈</div>
+                              </div>
+                              <img class="w-3 h-3 block" src="/openai/openai4/right-arrow.png" alt="">
+                          </div>
+                          <div class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 rounded-lg flex justify-between items-center" onclick="getNotice('1')">
+                              <div class="flex justify-between items-center">
+                                  <div class="mr-2">
+                                      <svg class="icon" width="18px" height="18px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1904"><path d="M471.04 913.066667c-18.773333 0-35.84-6.826667-49.493333-20.48L237.226667 708.266667c-3.413333-3.413333-6.826667-5.12-11.946667-5.12H59.733333c-13.653333 0-25.6-11.946667-25.6-25.6V346.453333c0-13.653333 11.946667-25.6 25.6-25.6h165.546667c3.413333 0 8.533333-1.706667 11.946667-5.12L421.546667 131.413333c20.48-20.48 49.493333-27.306667 76.8-15.36 27.306667 11.946667 44.373333 35.84 44.373333 64.853334v660.48c0 29.013333-17.066667 54.613333-44.373333 64.853333-8.533333 5.12-18.773333 6.826667-27.306667 6.826667zM85.333333 653.653333h139.946667c17.066667 0 35.84 6.826667 47.786667 20.48l184.32 184.32c8.533333 8.533333 18.773333 5.12 20.48 3.413334 3.413333-1.706667 11.946667-5.12 11.946666-18.773334V180.906667c0-11.946667-8.533333-17.066667-11.946666-18.773334-3.413333-1.706667-11.946667-5.12-20.48 3.413334L273.066667 351.573333c-11.946667 11.946667-29.013333 20.48-47.786667 20.48H85.333333v281.6zM675.84 732.16c-5.12 0-10.24-1.706667-15.36-5.12-11.946667-8.533333-13.653333-23.893333-5.12-35.84 42.666667-56.32 75.093333-102.4 75.093333-179.2 0-80.213333-29.013333-119.466667-69.973333-172.373333-8.533333-11.946667-6.826667-27.306667 5.12-35.84s27.306667-6.826667 35.84 5.12c42.666667 56.32 80.213333 105.813333 80.213333 203.093333 0 95.573333-40.96 150.186667-85.333333 209.92-5.12 6.826667-11.946667 10.24-20.48 10.24z" fill="#333333" p-id="1905"></path><path d="M803.84 892.586667c-6.826667 0-11.946667-1.706667-17.066667-6.826667-10.24-8.533333-11.946667-25.6-1.706666-35.84 80.213333-92.16 153.6-196.266667 153.6-339.626667 0-143.36-73.386667-247.466667-153.6-337.92-8.533333-10.24-8.533333-27.306667 1.706666-35.84s27.306667-8.533333 35.84 1.706667C909.653333 238.933333 989.866667 351.573333 989.866667 512c0 160.426667-80.213333 273.066667-167.253334 372.053333-5.12 6.826667-11.946667 8.533333-18.773333 8.533334z" fill="#333333" p-id="1906"></path></svg>
+                                  </div>
+                                  <div>公告通知</div>
+                              </div>
+                              <img class="w-3 h-3 block" src="/openai/openai4/right-arrow.png" alt="">
+                          </div>
+                          <div style="display: none" class="partner px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 rounded-lg flex justify-between items-center" onclick="partner()">
+                              <div class="flex justify-between items-center">
+                                  <div class="mr-2">
+                                      <svg class="icon" width="18px" height="18px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1904"><path d="M471.04 913.066667c-18.773333 0-35.84-6.826667-49.493333-20.48L237.226667 708.266667c-3.413333-3.413333-6.826667-5.12-11.946667-5.12H59.733333c-13.653333 0-25.6-11.946667-25.6-25.6V346.453333c0-13.653333 11.946667-25.6 25.6-25.6h165.546667c3.413333 0 8.533333-1.706667 11.946667-5.12L421.546667 131.413333c20.48-20.48 49.493333-27.306667 76.8-15.36 27.306667 11.946667 44.373333 35.84 44.373333 64.853334v660.48c0 29.013333-17.066667 54.613333-44.373333 64.853333-8.533333 5.12-18.773333 6.826667-27.306667 6.826667zM85.333333 653.653333h139.946667c17.066667 0 35.84 6.826667 47.786667 20.48l184.32 184.32c8.533333 8.533333 18.773333 5.12 20.48 3.413334 3.413333-1.706667 11.946667-5.12 11.946666-18.773334V180.906667c0-11.946667-8.533333-17.066667-11.946666-18.773334-3.413333-1.706667-11.946667-5.12-20.48 3.413334L273.066667 351.573333c-11.946667 11.946667-29.013333 20.48-47.786667 20.48H85.333333v281.6zM675.84 732.16c-5.12 0-10.24-1.706667-15.36-5.12-11.946667-8.533333-13.653333-23.893333-5.12-35.84 42.666667-56.32 75.093333-102.4 75.093333-179.2 0-80.213333-29.013333-119.466667-69.973333-172.373333-8.533333-11.946667-6.826667-27.306667 5.12-35.84s27.306667-6.826667 35.84 5.12c42.666667 56.32 80.213333 105.813333 80.213333 203.093333 0 95.573333-40.96 150.186667-85.333333 209.92-5.12 6.826667-11.946667 10.24-20.48 10.24z" fill="#333333" p-id="1905"></path><path d="M803.84 892.586667c-6.826667 0-11.946667-1.706667-17.066667-6.826667-10.24-8.533333-11.946667-25.6-1.706666-35.84 80.213333-92.16 153.6-196.266667 153.6-339.626667 0-143.36-73.386667-247.466667-153.6-337.92-8.533333-10.24-8.533333-27.306667 1.706666-35.84s27.306667-8.533333 35.84 1.706667C909.653333 238.933333 989.866667 351.573333 989.866667 512c0 160.426667-80.213333 273.066667-167.253334 372.053333-5.12 6.826667-11.946667 8.533333-18.773333 8.533334z" fill="#333333" p-id="1906"></path></svg>
+                                  </div>
+                                  <div>合伙人</div>
+                              </div>
+                              <img class="w-3 h-3 block" src="/openai/openai4/right-arrow.png" alt="">
+                          </div>
+                          <div class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 rounded-lg flex justify-between items-center" onclick="logout()">
+                              <div class="flex justify-between items-center">
+                                  <div class="mr-2">
+                                      <svg t="1689737192740" class="icon" viewBox="0 0 1024 1024" width="18" height="18"><path d="M952.532295 495.269967 767.686357 310.423005c-9.060353-9.060353-23.75196-9.060353-32.81743 0l-37.363979 37.362956c-9.060353 9.060353-9.060353 23.757077 0 32.81743l81.538061 81.538061L407.384337 462.141452c-12.812817 0-23.199375 10.386558-23.199375 23.199375l0 52.845579c0 12.815887 10.386558 23.204491 23.199375 23.204491l371.479593 0-81.538061 81.538061c-9.060353 9.060353-9.060353 23.757077 0 32.81743l37.368072 37.363979c9.060353 9.05933 23.75503 9.05933 32.815383 0l147.653875-147.653875c0-0.005117 0.005117-0.005117 0.005117-0.005117l37.368072-37.368072C961.592648 519.020904 961.592648 504.33032 952.532295 495.269967L952.532295 495.269967zM634.083499 64.754816l-499.803213 0c-38.441521 0-69.608358 31.166837-69.608358 69.608358l0 754.806002c0 38.446637 31.166837 69.608358 69.608358 69.608358l499.803213 0c38.441521 0 69.608358-31.16172 69.608358-69.608358l0-97.937566c0-12.811794-10.386558-23.204491-23.204491-23.204491l-50.29243 0c-12.812817 0-23.205515 10.392698-23.205515 23.204491l0 37.257555c0 34.328853 0 34.328853-34.791387 34.328853L195.199751 862.818017c-34.801621 0-34.801621 0.00614-34.801621-34.806737L160.39813 194.712657c0-34.900881-0.074701-34.802644 34.801621-34.802644l376.99726 0c34.798551 0 34.791387 0.285502 34.791387 34.329876l0 38.353516c0 12.815887 10.392698 23.204491 23.205515 23.204491l50.29243 0c12.817933 0 23.204491-10.388605 23.204491-23.204491L703.690834 134.363174C703.691857 95.921653 672.52502 64.754816 634.083499 64.754816L634.083499 64.754816zM634.083499 64.754816" p-id="2440" data-spm-anchor-id="a313x.7781069.0.i1" class="selected"></path></svg>
+                                  </div>
+                                  <div>退出登录</div>
+                              </div>
+                              <img class="w-3 h-3 block" src="/openai/openai4/right-arrow.png" alt="">
+                          </div>
+                      </div>
+                  </div>
+
+              </div>
+
+                <div class="flex justify-center items-center ml-4" onclick="goPage('pc','promote')">
+
+                    <svg t="1690341225031" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6395" data-spm-anchor-id="a313x.7781069.0.i4" width="30" height="30"><path d="M841.749136 1023.93536H182.142717C81.760872 1023.93536 0.06464 942.836385 0.06464 843.15845v-78.496641c0-189.671774 107.591591-363.857527 276.252716-450.737097l-0.68258-0.70391c-40.208198-39.888239-63.202594-91.380329-63.202594-141.272622 0.106653-37.49921 13.608928-71.500201 38.096468-95.795765 33.702362-33.29708 84.597195-45.284883 137.881055-32.294542A195.196402 195.196402 0 0 1 511.999253 0.066133a193.895235 193.895235 0 0 1 126.981115 46.692703c54.585028-15.592675 110.68453-4.308783 145.581406 30.396118 24.487539 24.295564 37.989814 58.381877 37.989814 95.881087 0 49.892294-22.994396 101.384384-63.181263 141.1873-1.301167 1.301167-2.602334 2.495681-3.903502 3.796848 163.883068 88.095415 268.467044 260.660041 268.360391 446.64162v78.496641c0 99.677935-81.674901 180.77691-182.078078 180.77691z m126.298536-259.380204c0-173.161883-102.002972-333.248103-259.764156-407.947895h-0.106653a38.608402 38.608402 0 0 1-21.906535-31.18535 39.013684 39.013684 0 0 1 15.507353-35.195505c6.399183-4.692734 12.499737-10.004056 18.301662-15.805981 29.180273-28.988297 46.692703-66.89279 46.692703-101.469707 0-15.912634-3.711526-38.608402-21.501254-56.206154-17.704405-17.597752-40.698802-21.287948-56.888734-21.287948-15.102071 0-30.609424 3.092938-46.202098 9.08684l-17.192471 6.697811-12.905019-13.182317A138.798272 138.798272 0 0 0 511.999253 55.952328a139.928794 139.928794 0 0 0-97.288907 39.099007l-12.307761 11.795826-15.997957-5.289991a125.232005 125.232005 0 0 0-39.888238-6.911117c-16.10461 0-39.099006 3.711526-56.782081 21.309278-17.811058 17.597752-21.501254 40.186867-21.501254 56.078171 0 34.598248 17.384446 72.50274 46.692703 101.59769 4.799387 4.799387 9.897403 9.300145 15.187393 13.28897 11.19857 8.702888 16.80852 21.991858 15.208725 35.707439a38.715055 38.715055 0 0 1-22.610446 30.801399c-162.069966 73.483948-266.845917 234.850004-266.845917 411.232809v78.496641c0 68.897867 56.675428 124.976038 126.277204 124.976037h659.606419c69.601777 0 126.298535-56.078171 126.298536-124.976037V764.555156z m-384.868177-153.175102h70.092381c17.405777 0 31.611962 14.01421 31.611963 31.292003a31.569301 31.569301 0 0 1-31.611963 31.313334h-109.681991v43.386458h109.788644c17.405777 0 31.590632 13.992879 31.590632 31.292003 0 17.192471-14.184855 31.292003-31.590632 31.292004h-109.681991v90.505773c0 17.192471-14.206186 31.292003-31.590632 31.292003a31.483979 31.483979 0 0 1-31.611962-31.292003v-90.505773h-110.172595a31.483979 31.483979 0 0 1-31.611962-31.292004c0-17.192471 14.206186-31.292003 31.611962-31.292003h110.087273v-43.386458h-110.193926a31.483979 31.483979 0 0 1-31.590632-31.313334c0-17.192471 14.184855-31.292003 31.590632-31.292003h71.884152l-95.390483-104.285347a31.228011 31.228011 0 0 1 2.218383-44.282344 31.782607 31.782607 0 0 1 44.687626 2.197052l119.08879 130.372682 117.680969-128.687564a31.86793 31.86793 0 0 1 44.687625-2.197052c6.207207 5.60995 9.897403 13.3103 10.302685 21.693229 0.405282 8.318937-2.495681 16.403238-8.297607 22.41847l-93.897341 102.770874z" fill="#ffffff" p-id="6396"></path></svg>
+
+                </div>
+                <div class="flex justify-center items-center ml-4 opacity-0">
+                    <svg t="1689161099800" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5621"
+                         xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20">
+                        <path d="M889.828994 749.637494c-1.204099-1.720141-119.205779-165.821603-119.205779-287.435579 0-168.401814-76.202251-254.752898-162.725349-286.919536L607.897867 159.973123c0-52.980346-43.175542-95.983874-95.983874-95.983874S415.930119 107.164791 415.930119 159.973123l0 15.309256c-86.523098
+                        32.166639-162.725349 118.517722-162.725349 286.919536 0 121.269948-118.00168 285.199395-119.205779 286.919536-5.332437 7.568621-7.396607 16.857383-5.332437 25.974131 2.064169 8.944734 7.912649 16.685369 15.997312 20.985721 5.676466 3.096254 107.336805 57.280699 233.423148 84.458928 21.32975
+                          66.397447 73.966068 111.29313 133.654964 111.29313s112.325214-44.895683 133.654964-111.29313c126.086343-27.178229 227.746682-81.018646 233.423148-83.942886 8.256677-4.472367 13.933143-12.040988 16.169326-20.985721C897.225601 766.666891 895.333445 757.206115 889.828994 749.637494zM479.919368
+                          159.973123c0-17.545439 14.449185-31.994625 31.994625-31.994625 17.545439 0 31.994625 14.449185 31.994625 31.994625l0 0.860071c-7.224593-0.516042-14.277171-0.860071-21.32975-0.860071l-21.32975 0c-7.052579 0-14.105157 0.344028-21.32975 0.860071L479.919368 159.973123 479.919368 159.973123zM511.913993
+                        928.016126c-22.361834 0-43.175542-13.417101-57.968755-35.262893 19.26558 2.064169 38.531161 3.268268 57.968755 3.268268s38.875189-1.376113 57.968755-3.268268C555.089535 914.599026 534.275827 928.016126 511.913993 928.016126z" fill="#ffffff" p-id="5622"></path></svg>
+                </div>
+                <div class="flex justify-center items-center ml-4 opacity-0">
+                    <svg t="1689161099800" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5621"
+                         xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20">
+                        <path d="M889.828994 749.637494c-1.204099-1.720141-119.205779-165.821603-119.205779-287.435579 0-168.401814-76.202251-254.752898-162.725349-286.919536L607.897867 159.973123c0-52.980346-43.175542-95.983874-95.983874-95.983874S415.930119 107.164791 415.930119 159.973123l0 15.309256c-86.523098
+                        32.166639-162.725349 118.517722-162.725349 286.919536 0 121.269948-118.00168 285.199395-119.205779 286.919536-5.332437 7.568621-7.396607 16.857383-5.332437 25.974131 2.064169 8.944734 7.912649 16.685369 15.997312 20.985721 5.676466 3.096254 107.336805 57.280699 233.423148 84.458928 21.32975
+                          66.397447 73.966068 111.29313 133.654964 111.29313s112.325214-44.895683 133.654964-111.29313c126.086343-27.178229 227.746682-81.018646 233.423148-83.942886 8.256677-4.472367 13.933143-12.040988 16.169326-20.985721C897.225601 766.666891 895.333445 757.206115 889.828994 749.637494zM479.919368
+                          159.973123c0-17.545439 14.449185-31.994625 31.994625-31.994625 17.545439 0 31.994625 14.449185 31.994625 31.994625l0 0.860071c-7.224593-0.516042-14.277171-0.860071-21.32975-0.860071l-21.32975 0c-7.052579 0-14.105157 0.344028-21.32975 0.860071L479.919368 159.973123 479.919368 159.973123zM511.913993
+                        928.016126c-22.361834 0-43.175542-13.417101-57.968755-35.262893 19.26558 2.064169 38.531161 3.268268 57.968755 3.268268s38.875189-1.376113 57.968755-3.268268C555.089535 914.599026 534.275827 928.016126 511.913993 928.016126z" fill="#ffffff" p-id="5622"></path></svg>
+                </div>
+            </div>
+            
+          </div>
+        
+        </div>
+        <div class="container__page" style="
+            overflow-y: auto;
+            padding-bottom: 180px;
+            box-sizing: border-box;
+          " id="messageContent">
+        </div>
+          <!-- 输入框表单 -->
+          <div
+                  class="absolute bottom-0 left-0 w-full border-t md:border-t-0 dark:border-white/20 md:border-transparent md:dark:border-transparent md:bg-vert-light-gradient bg-white dark:bg-gray-800 md:!bg-transparent dark:md:bg-vert-dark-gradient pt-2" id="sendBottom">
+              <form onsubmit="return false"
+                    class="stretch mx-2 flex flex-row gap-3 last:mb-2 md:mx-4 md:last:mb-6 lg:mx-auto lg:max-w-2xl xl:max-w-3xl">
+                  <div class="relative flex h-full flex-1 items-stretch md:flex-col">
+                      <div class="">
+                          <div class="h-full flex ml-1 md:w-full md:m-auto md:mb-2 gap-0 md:gap-2 justify-center"></div>
+                      </div>
+                      <div
+                              class="flex flex-col w-full py-2 flex-grow md:py-3 md:pl-4 relative border border-black/10 bg-white dark:border-gray-900/50 dark:text-white dark:bg-gray-700 rounded-md shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:shadow-[0_0_15px_rgba(0,0,0,0.10)]">
+          <textarea id="prompt-textarea" oninput="getInput()" tabindex="0" data-id="root" rows="1" onfocus="getFocus()"
+                    placeholder="Send a message..."
+                    class="m-0 w-full resize-none border-0 bg-transparent p-0 pr-7 focus:ring-0 focus-visible:ring-0 dark:bg-transparent pl-2 md:pl-0"
+                    style="max-height: 160px; overflow-y: auto; outline: none"></textarea>
+                          <button id="submit" onclick="submitMessage()"
+                                  class="absolute p-1 rounded-md md:bottom-3 md:right-3 right-2 text-gray-400 bg-brand-purple text-white transition-colors disabled:opacity-40"
+                                  style="width: 24px; height: 24px" disabled>
+            <span data-state="closed"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none"
+                                           class="h-4 w-4" stroke-width="2">
+                <path
+                        d="M.5 1.163A1 1 0 0 1 1.97.28l12.868 6.837a1 1 0 0 1 0 1.766L1.969 15.72A1 1 0 0 1 .5 14.836V10.33a1 1 0 0 1 .816-.983L8.5 8 1.316 6.653A1 1 0 0 1 .5 5.67V1.163Z"
+                        fill="currentColor"></path>
+              </svg></span>
+                          </button>
+
+                          <div id="loading"
+                               class="hidden absolute p-1 rounded-md sm:bottom-3 sm:p-2 sm:right-3 md:bottom-3 md:p-2 md:right-3 right-2 animate-spin"
+                               style="
+                width: 24px;
+                height: 24px;
+                border: 1px solid #f3f3f3;
+                border-radius: 50%;
+                border-top: 1px solid #1fe229;
+              "></div>
+                      </div>
+                  </div>
+              </form>
+              <div class="px-3 pb-3 pt-2 text-center text-xs text-gray-600 dark:text-gray-300 md:px-4 md:pb-6 md:pt-3">
+                  <span>欢迎使用AI-Chat</span> <a style="color:blue" href="/kefu">人工客服</a>
+              </div>
+              <!--<div class="px-3 pb-3 pt-2 text-center text-xs text-gray-600 dark:text-gray-300 md:px-4 md:pb-6 md:pt-3">
+                  <span>
+                    AI-Chat May 24 Version
+                  </span>
+              </div>-->
+          </div>
+      </div>
+    </div>
+    <!-- 手机端菜单栏 -->
+    <div>
+      <div class="menuBg hidden " onclick="hidePage()"
+        style="background-color: rgba(0, 0, 0, 0.7);position: fixed;top: 0;width: 100%; height: 100%;z-index: 20;">
+      </div>
+      <!-- 菜单 -->
+      <div class="menu animate__animated p-4 flex flex-col hidden bgColor"
+        style="width: 260px;position: fixed;z-index: 21;height: 100%; color: white;top: 0;">
+        <div class="flex-shrink-0 box-border">
+             <div style="height: 50px;" class="flex items-center justify-center border border-white">
+                 AI-Chat
+            </div>
+             <!--<div
+               class="search-box my-3 rounded-lg h-8 border-white  border flex items-center px-2 box-border w-full overflow-hidden">
+                <div><svg t="1688570534466" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                xmlns="http://www.w3.org/2000/svg" p-id="2292" xmlns:xlink="http://www.w3.org/1999/xlink" width="28"
+                height="28">
+                <path
+                  d="M955.069071 864.311021 740.015134 649.258107c-3.752464-3.751441-8.841366-5.860475-14.149255-5.860475-5.306866 0-10.395768 2.108011-14.149255 5.860475l-16.692171 16.692171-38.34226-38.34226c53.03796-59.810201 85.298711-138.442072 85.298711-224.478588 0-186.774871-151.952784-338.727655-338.727655-338.727655S64.527642 216.35456 64.527642 403.12943c0 186.775894 151.952784 338.728678 338.727655 338.728678 86.36909 0 165.276231-32.510438 225.170343-85.913718l38.303374 38.303374-17.34504 17.34504c-7.812943 7.813966-7.812943 20.48352 0 28.297486l215.051891 215.052914c3.753487 3.751441 8.841366 5.860475 14.149255 5.860475 5.306866 0 10.395768-2.108011 14.149255-5.860475l62.334697-62.334697C962.883037 884.794541 962.883037 872.124987 955.069071 864.311021zM104.546078 403.12943c0-164.709319 133.9999-298.709219 298.709219-298.709219s298.709219 133.9999 298.709219 298.709219S567.964616 701.839673 403.255297 701.839673 104.546078 567.838749 104.546078 403.12943zM878.585119 912.496463 691.829691 725.741036l34.036187-34.036187 186.755428 186.755428L878.585119 912.496463z"
+                  fill="white" p-id="2293"></path>
+                 </svg></div>
+                 <input  type="text" class="w-full " style="color:black" id="mobileSearchName" oninput="searchMenu(1)">
+             </div>-->
+          </div>
+        <div id="menu" class="overflow-y-auto menuList" style="height: calc(100vh - 121px);">
+          
+
+        </div>
+      </div>
+    </div>
+     <div>
+      <div class="menuBg__right" onclick="hideSetPage()"
+        style="background-color: rgba(0, 0, 0, 0.7);position: fixed;top: 0;width: 100%; height: 100%;z-index: 20;">
+      </div>
+      <!-- 菜单 -->
+      <div class="menu__right  flex flex-col animate__animated hidden bgColor"
+        style="width: 260px;position: fixed;z-index: 21;height: 100%; color: white;top: 0;right: 0;">
+        <div class="flex-shrink-0 box-border">
+             <div style="height: 150px;" class="flex items-center justify-center ">
+              <div class="rounded-full border border-white flex items-center justify-center" style="width: 106px; height: 106px;">
+                <img class="rounded-full w-24 h-24" src="/openai/openai4/avator.png" alt="">
+              </div>
+            </div>
+
+            <div>
+                <div class="text-sm flex items-center pl-10">
+                    <div class="">
+                        登录名：
+                    </div>
+                    <div class="loginName" th:text="${user.loginName}"></div>
+                </div>
+                <div class="text-sm flex items-center pl-10">
+                    <div class="">
+                        每日免费次数：
+                    </div>
+                    <div class="freeTime" th:text="${freeTime}"></div>
+                </div>
+                <div class="text-sm flex items-center pl-10">
+                    <div class="">
+                        AI-Chat 3.5次数：
+                    </div>
+                    <div class="moneyTime" th:text="${moneyTime}"></div>
+                </div>
+                <div class="text-sm flex items-center pl-10">
+                    <div>
+                        AI-Chat 4.0次数：
+                    </div>
+                    <div class="moneyTimeFour" th:text="${moneyTimeFour}"></div>
+                </div>
+
+                <div class="text-sm flex items-center pl-10">
+                    <div>
+                        3.5 到期时间：
+                    </div>
+                    <div class="expirationTime" th:text="${expirationTime}"></div>
+                </div>
+
+                <div class="text-sm flex items-center pl-10">
+                    <div>
+                        midjourney 免费次数：
+                    </div>
+                    <div class="mjFreeTime" th:text="${mjFreeTime}"></div>
+                </div>
+
+                <div class="text-sm flex items-center pl-10">
+                    <div>
+                        midjourney 次数：
+                    </div>
+                    <div class="mjMoneyTime" th:text="${mjMoneyTime}"></div>
+                </div>
+
+                <div class="text-sm flex items-center pl-10">
+                    <div>
+                        DALL.E 次数：
+                    </div>
+                    <div class="dallETime" th:text="${dallETime}"></div>
+                </div>
+            </div>
+
+            <div class="menu__item">
+              <div>
+                <svg class="icon" width="20px" height="20px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M879.570052 604.289939l-57.671491 0 0.063445 315.00844c-0.005117 2.690272-0.167822 4.242627-0.319272 5.110391-1.485841-0.029676-2.90619-0.385786-3.527336-0.575098l-274.015817-162.930813c-2.408863-1.385557-15.283078-8.293897-32.145118-8.293897-15.418154 0-27.259854 5.619998-31.633465 8.037047l-277.131785 163.945933c-0.075725 0.016373-0.149403 0.031722-0.220011 0.047072-0.540306-0.596588-0.843204-1.451048-0.918929-1.787716l0.01842-793.842063c0-38.714743 30.705326-70.210062 68.447928-70.210062l482.860333 0c37.722136 0 68.412113 31.495318 68.412113 70.210062l0.020466 76.918857 57.667398 0 0-76.918857c0-71.136154-56.568367-129.008212-126.099976-129.008212l-482.860333 0c-69.536726 0-126.108163 57.873082-126.108163 129.008212l-0.027629 893.571439 7.036253-2.99931c47.444569-20.218484 340.53379-197.638289 356.509646-207.315696 0.623193-0.25685 2.369977-0.856507 4.02978-0.856507 1.068332 0 2.503007 0.286526 3.980661 0.793062 12.633738 7.54586 284.356326 169.773661 356.302939 207.212342l7.389294 3.845585L879.570052 604.289939zM739.708654 591.286788 739.708654 448.048479 879.62224 448.048479 879.62224 389.269771 739.708654 389.269771 739.708654 246.029416 682.065815 246.029416 682.065815 389.269771 542.168602 389.269771 542.168602 448.048479 682.065815 448.048479 682.065815 591.286788Z" fill="#fff" /></svg>
+              </div>
+              <div class="ml-5" onclick="goPage('mobile','price')" >
+                订阅套餐
+              </div>
+            </div>
+
+            <div class="menu__item" onclick="feedback()">
+                <div>
+                    <svg class="icon" width="30" height="20" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M512 697.6c102.4 0 182.4-83.2 182.4-185.6 0-102.4-83.2-185.6-182.4-185.6-102.4 0-182.4 83.2-182.4 185.6C329.6 614.4 412.8 697.6 512 697.6L512 697.6zM512 646.4c-73.6 0-134.4-60.8-134.4-134.4 0-73.6 60.8-134.4 134.4-134.4 73.6 0 134.4 60.8 134.4 134.4C646.4 585.6 585.6 646.4 512 646.4L512 646.4zM249.015232 843.178592c35.2 28.8 73.6 51.2 112 67.2 41.6-38.4 96-60.8 150.4-60.8 57.6 0 108.8 22.4 150.4 60.8 41.6-16 80-38.4 112-67.2-12.8-54.4-3.2-112 22.4-163.2 28.8-48 73.6-86.4 128-102.4 3.2-22.4 6.4-44.8 6.4-67.2 0-22.4-3.2-44.8-6.4-67.2-54.4-16-99.2-54.4-128-102.4-28.8-48-35.2-108.8-22.4-163.2-35.2-28.8-73.6-51.2-112-67.2-41.6 38.4-92.8 60.8-150.4 60.8-54.4 0-108.8-22.4-150.4-60.8-41.6 16-80 38.4-112 67.2 12.8 54.4 3.2 112-22.4 163.2-28.8 48-73.6 86.4-128 102.4-3.2 22.4-6.4 44.8-6.4 67.2 0 22.4 3.2 44.8 6.4 67.2 54.4 16 99.2 54.4 128 102.4C252.215232 731.178592 261.815232 788.778592 249.015232 843.178592M361.015232 958.378592c-54.4-19.2-105.6-48-150.4-89.6-6.4-6.4-9.6-16-6.4-22.4 16-48 9.6-99.2-16-140.8-25.6-44.8-64-73.6-112-83.2-9.6-3.2-16-9.6-16-19.2-6.4-28.8-9.6-60.8-9.6-89.6 0-28.8
+                  3.2-57.6 9.6-89.6 3.2-9.6 9.6-16 16-19.2 48-12.8 89.6-41.6 112-83.2 25.6-44.8
+                   28.8-92.8 16-140.8-3.2-9.6 0-19.2 6.4-22.4 44.8-38.4 96-67.2 150.4-89.6 9.6-3.2 16 0
+                   22.4 6.4 35.2 35.2 80 57.6 128 57.6 48 0 96-19.2 128-57.6 6.4-6.4 16-9.6 22.4-6.4 54.4 19.2 105.6 48 150.4 89.6 6.4 6.4
+                   9.6 16 6.4 22.4-16 48-9.6 99.2 16 140.8 25.6 44.8 64 73.6 112 83.2 9.6 3.2 16 9.6 16 19.2 6.4 28.8 9.6 60.8 9.6 89.6
+                   0 28.8-3.2 57.6-9.6 89.6-3.2 9.6-9.6 16-16 19.2-48 12.8-89.6 41.6-112 83.2-25.6 44.8-28.8 92.8-16 140.8 3.2 9.6 0
+                    19.2-6.4 22.4-44.8 38.4-96 67.2-150.4 89.6-9.6 3.2-16 0-22.4-6.4-35.2-35.2-80-57.6-128-57.6-48 0-96 19.2-128
+                    57.6-3.2 3.2-9.6 6.4-16 6.4C364.215232 958.378592 361.015232 958.378592 361.015232 958.378592z" fill="#fff"  />
+                    </svg>
+                </div>
+                <div class="ml-5">
+                    问题反馈
+                </div>
+            </div>
+
+            <div class="menu__item">
+                <div>
+                    <svg class="icon" width="20px" height="20px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1904"><path d="M471.04 913.066667c-18.773333 0-35.84-6.826667-49.493333-20.48L237.226667 708.266667c-3.413333-3.413333-6.826667-5.12-11.946667-5.12H59.733333c-13.653333 0-25.6-11.946667-25.6-25.6V346.453333c0-13.653333 11.946667-25.6 25.6-25.6h165.546667c3.413333 0 8.533333-1.706667 11.946667-5.12L421.546667 131.413333c20.48-20.48 49.493333-27.306667 76.8-15.36 27.306667 11.946667 44.373333 35.84 44.373333 64.853334v660.48c0 29.013333-17.066667 54.613333-44.373333 64.853333-8.533333 5.12-18.773333 6.826667-27.306667 6.826667zM85.333333 653.653333h139.946667c17.066667 0 35.84 6.826667 47.786667 20.48l184.32 184.32c8.533333 8.533333 18.773333 5.12 20.48 3.413334 3.413333-1.706667 11.946667-5.12 11.946666-18.773334V180.906667c0-11.946667-8.533333-17.066667-11.946666-18.773334-3.413333-1.706667-11.946667-5.12-20.48 3.413334L273.066667 351.573333c-11.946667 11.946667-29.013333 20.48-47.786667 20.48H85.333333v281.6zM675.84 732.16c-5.12 0-10.24-1.706667-15.36-5.12-11.946667-8.533333-13.653333-23.893333-5.12-35.84 42.666667-56.32 75.093333-102.4 75.093333-179.2 0-80.213333-29.013333-119.466667-69.973333-172.373333-8.533333-11.946667-6.826667-27.306667 5.12-35.84s27.306667-6.826667 35.84 5.12c42.666667 56.32 80.213333 105.813333 80.213333 203.093333 0 95.573333-40.96 150.186667-85.333333 209.92-5.12 6.826667-11.946667 10.24-20.48 10.24z" fill="#333333" p-id="1905"></path><path d="M803.84 892.586667c-6.826667 0-11.946667-1.706667-17.066667-6.826667-10.24-8.533333-11.946667-25.6-1.706666-35.84 80.213333-92.16 153.6-196.266667 153.6-339.626667 0-143.36-73.386667-247.466667-153.6-337.92-8.533333-10.24-8.533333-27.306667 1.706666-35.84s27.306667-8.533333 35.84 1.706667C909.653333 238.933333 989.866667 351.573333 989.866667 512c0 160.426667-80.213333 273.066667-167.253334 372.053333-5.12 6.826667-11.946667 8.533333-18.773333 8.533334z" fill="#333333" p-id="1906"></path></svg>
+                </div>
+                <div class="ml-5" onclick="getNotice('1')" >
+                    公告通知
+                </div>
+            </div>
+
+
+            <div style="display: none" class="partner menu__item">
+                <div>
+                    <svg class="icon" width="20px" height="20px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1904"><path d="M471.04 913.066667c-18.773333 0-35.84-6.826667-49.493333-20.48L237.226667 708.266667c-3.413333-3.413333-6.826667-5.12-11.946667-5.12H59.733333c-13.653333 0-25.6-11.946667-25.6-25.6V346.453333c0-13.653333 11.946667-25.6 25.6-25.6h165.546667c3.413333 0 8.533333-1.706667 11.946667-5.12L421.546667 131.413333c20.48-20.48 49.493333-27.306667 76.8-15.36 27.306667 11.946667 44.373333 35.84 44.373333 64.853334v660.48c0 29.013333-17.066667 54.613333-44.373333 64.853333-8.533333 5.12-18.773333 6.826667-27.306667 6.826667zM85.333333 653.653333h139.946667c17.066667 0 35.84 6.826667 47.786667 20.48l184.32 184.32c8.533333 8.533333 18.773333 5.12 20.48 3.413334 3.413333-1.706667 11.946667-5.12 11.946666-18.773334V180.906667c0-11.946667-8.533333-17.066667-11.946666-18.773334-3.413333-1.706667-11.946667-5.12-20.48 3.413334L273.066667 351.573333c-11.946667 11.946667-29.013333 20.48-47.786667 20.48H85.333333v281.6zM675.84 732.16c-5.12 0-10.24-1.706667-15.36-5.12-11.946667-8.533333-13.653333-23.893333-5.12-35.84 42.666667-56.32 75.093333-102.4 75.093333-179.2 0-80.213333-29.013333-119.466667-69.973333-172.373333-8.533333-11.946667-6.826667-27.306667 5.12-35.84s27.306667-6.826667 35.84 5.12c42.666667 56.32 80.213333 105.813333 80.213333 203.093333 0 95.573333-40.96 150.186667-85.333333 209.92-5.12 6.826667-11.946667 10.24-20.48 10.24z" fill="#333333" p-id="1905"></path><path d="M803.84 892.586667c-6.826667 0-11.946667-1.706667-17.066667-6.826667-10.24-8.533333-11.946667-25.6-1.706666-35.84 80.213333-92.16 153.6-196.266667 153.6-339.626667 0-143.36-73.386667-247.466667-153.6-337.92-8.533333-10.24-8.533333-27.306667 1.706666-35.84s27.306667-8.533333 35.84 1.706667C909.653333 238.933333 989.866667 351.573333 989.866667 512c0 160.426667-80.213333 273.066667-167.253334 372.053333-5.12 6.826667-11.946667 8.533333-18.773333 8.533334z" fill="#333333" p-id="1906"></path></svg>
+                </div>
+                <div class="ml-5" onclick="partner()" >
+                    合伙人
+                </div>
+            </div>
+
+            <div class="menu__item">
+                <div>
+                    <svg t="1690341225031" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6395" data-spm-anchor-id="a313x.7781069.0.i4" width="20" height="20"><path d="M841.749136 1023.93536H182.142717C81.760872 1023.93536 0.06464 942.836385 0.06464 843.15845v-78.496641c0-189.671774 107.591591-363.857527 276.252716-450.737097l-0.68258-0.70391c-40.208198-39.888239-63.202594-91.380329-63.202594-141.272622 0.106653-37.49921 13.608928-71.500201 38.096468-95.795765 33.702362-33.29708 84.597195-45.284883 137.881055-32.294542A195.196402 195.196402 0 0 1 511.999253 0.066133a193.895235 193.895235 0 0 1 126.981115 46.692703c54.585028-15.592675 110.68453-4.308783 145.581406 30.396118 24.487539 24.295564 37.989814 58.381877 37.989814 95.881087 0 49.892294-22.994396 101.384384-63.181263 141.1873-1.301167 1.301167-2.602334 2.495681-3.903502 3.796848 163.883068 88.095415 268.467044 260.660041 268.360391 446.64162v78.496641c0 99.677935-81.674901 180.77691-182.078078 180.77691z m126.298536-259.380204c0-173.161883-102.002972-333.248103-259.764156-407.947895h-0.106653a38.608402 38.608402 0 0 1-21.906535-31.18535 39.013684 39.013684 0 0 1 15.507353-35.195505c6.399183-4.692734 12.499737-10.004056 18.301662-15.805981 29.180273-28.988297 46.692703-66.89279 46.692703-101.469707 0-15.912634-3.711526-38.608402-21.501254-56.206154-17.704405-17.597752-40.698802-21.287948-56.888734-21.287948-15.102071 0-30.609424 3.092938-46.202098 9.08684l-17.192471 6.697811-12.905019-13.182317A138.798272 138.798272 0 0 0 511.999253 55.952328a139.928794 139.928794 0 0 0-97.288907 39.099007l-12.307761 11.795826-15.997957-5.289991a125.232005 125.232005 0 0 0-39.888238-6.911117c-16.10461 0-39.099006 3.711526-56.782081 21.309278-17.811058 17.597752-21.501254 40.186867-21.501254 56.078171 0 34.598248 17.384446 72.50274 46.692703 101.59769 4.799387 4.799387 9.897403 9.300145 15.187393 13.28897 11.19857 8.702888 16.80852 21.991858 15.208725 35.707439a38.715055 38.715055 0 0 1-22.610446 30.801399c-162.069966 73.483948-266.845917 234.850004-266.845917 411.232809v78.496641c0 68.897867 56.675428 124.976038 126.277204 124.976037h659.606419c69.601777 0 126.298535-56.078171 126.298536-124.976037V764.555156z m-384.868177-153.175102h70.092381c17.405777 0 31.611962 14.01421 31.611963 31.292003a31.569301 31.569301 0 0 1-31.611963 31.313334h-109.681991v43.386458h109.788644c17.405777 0 31.590632 13.992879 31.590632 31.292003 0 17.192471-14.184855 31.292003-31.590632 31.292004h-109.681991v90.505773c0 17.192471-14.206186 31.292003-31.590632 31.292003a31.483979 31.483979 0 0 1-31.611962-31.292003v-90.505773h-110.172595a31.483979 31.483979 0 0 1-31.611962-31.292004c0-17.192471 14.206186-31.292003 31.611962-31.292003h110.087273v-43.386458h-110.193926a31.483979 31.483979 0 0 1-31.590632-31.313334c0-17.192471 14.184855-31.292003 31.590632-31.292003h71.884152l-95.390483-104.285347a31.228011 31.228011 0 0 1 2.218383-44.282344 31.782607 31.782607 0 0 1 44.687626 2.197052l119.08879 130.372682 117.680969-128.687564a31.86793 31.86793 0 0 1 44.687625-2.197052c6.207207 5.60995 9.897403 13.3103 10.302685 21.693229 0.405282 8.318937-2.495681 16.403238-8.297607 22.41847l-93.897341 102.770874z" fill="#ffffff" p-id="6396"></path></svg>
+                </div>
+                <div class="ml-5" onclick="goPage('mobile','promote')" >
+                    我要赚钱
+                </div>
+            </div>
+
+
+            <div class="menu__item">
+                <div>
+                    <img class="rounded-full w-10 h-10" src="/openai/openai4/dalle.png" alt="">
+                </div>
+                <div class="ml-5">
+                    <a href="/dalle3">DALLE</a>
+                </div>
+            </div>
+            <div class="menu__item">
+                <div>
+                    <img class="rounded-full w-10 h-10" src="/openai/openai4/mj.png" alt="">
+                </div>
+                <div class="ml-5">
+                    <a href="/mj">midjourney</a>
+                </div>
+            </div>
+
+            <div class="menu__item">
+                <div>
+                    <svg t="1689737192740" class="icon" viewBox="0 0 1024 1024" width="18" height="18"><path d="M952.532295 495.269967 767.686357 310.423005c-9.060353-9.060353-23.75196-9.060353-32.81743 0l-37.363979 37.362956c-9.060353 9.060353-9.060353 23.757077 0 32.81743l81.538061 81.538061L407.384337 462.141452c-12.812817 0-23.199375 10.386558-23.199375 23.199375l0 52.845579c0 12.815887 10.386558 23.204491 23.199375 23.204491l371.479593 0-81.538061 81.538061c-9.060353 9.060353-9.060353 23.757077 0 32.81743l37.368072 37.363979c9.060353 9.05933 23.75503 9.05933 32.815383 0l147.653875-147.653875c0-0.005117 0.005117-0.005117 0.005117-0.005117l37.368072-37.368072C961.592648 519.020904 961.592648 504.33032 952.532295 495.269967L952.532295 495.269967zM634.083499 64.754816l-499.803213 0c-38.441521 0-69.608358 31.166837-69.608358 69.608358l0 754.806002c0 38.446637 31.166837 69.608358 69.608358 69.608358l499.803213 0c38.441521 0 69.608358-31.16172 69.608358-69.608358l0-97.937566c0-12.811794-10.386558-23.204491-23.204491-23.204491l-50.29243 0c-12.812817 0-23.205515 10.392698-23.205515 23.204491l0 37.257555c0 34.328853 0 34.328853-34.791387 34.328853L195.199751 862.818017c-34.801621 0-34.801621 0.00614-34.801621-34.806737L160.39813 194.712657c0-34.900881-0.074701-34.802644 34.801621-34.802644l376.99726 0c34.798551 0 34.791387 0.285502 34.791387 34.329876l0 38.353516c0 12.815887 10.392698 23.204491 23.205515 23.204491l50.29243 0c12.817933 0 23.204491-10.388605 23.204491-23.204491L703.690834 134.363174C703.691857 95.921653 672.52502 64.754816 634.083499 64.754816L634.083499 64.754816zM634.083499 64.754816" p-id="2440" data-spm-anchor-id="a313x.7781069.0.i1" class="selected"></path></svg>
+                </div>
+                <div class="ml-5" onclick="logout()" >
+                    退出登录
+                </div>
+            </div>
+           
+          </div>
+       
+      </div>
+    </div>
+  </div>
+
+  <div class="web_notice">
+      <div class="web_notice2 " >
+          <h3 calss="web_notice_h3" id="web_notice_title">网站通知</h3>
+          <div class="web_notice_div" id="web_notice_content">
+          </div>
+          <a class="web_notice_a" onclick="okRead()">我知道了</a>
+      </div>
+  </div>
+
+  <script th:inline="javascript">
+      let temp = true;
+      let user = [[${user}]];
+      let socketIoUrl = [[${socketIoUrl}]];
+  </script>
+  <script src="/openai/openai4/marked.js" th:src="@{/openai/openai4/marked.js(v=${version})}"></script>
+  <script src="/openai/openai4/highlight.min.js" th:src="@{/openai/openai4/highlight.min.js(v=${version})}"></script>
+  <script src="/openai/openai4/jquery.min.js" th:src="@{/openai/openai4/jquery.min.js(v=${version})}"></script>
+  <script src="/openai/socket/socket.io.js" th:src="@{/openai/socket/socket.io.js(v=${version})}"></script>
+  <script src="/openai/openai4/h5-loading.js" th:src="@{/openai/openai4/h5-loading.js(v=${version})}"></script>
+  <script src="/openai/js/layer.min.js" th:src="@{/openai/js/layer.min.js(v=${version})}"></script>
+  <script src="/openai/openai4/menu.js" th:src="@{/openai/openai4/menu.js(v=${version})}"></script>
+  <script>
+    hljs.initHighlightingOnLoad();
+    // 设置marked
+    marked.marked.setOptions({
+      renderer: new marked.Renderer(),
+      highlight: function (code, language) {
+        const validLang = !!(language && hljs.getLanguage(language))
+        console.log(language);
+        if (validLang) {
+          const lang = language ?? ''
+          return highlightBlock(hljs.highlight(code, { language: lang }).value, lang)
+        }
+        return highlightBlock(hljs.highlightAuto(code).value, '')
+      },
+      pedantic: false,
+      gfm: true,
+      tables: true,
+      breaks: false,
+      sanitize: false,
+      smartLists: true,
+      smartypants: false,
+      xhtml: false,
+    });
+  </script>
+  <script src="/openai/openai4/indexcopy.js" th:src="@{/openai/openai4/indexcopy.js(v=${version})}"></script>
+  <script src="/openai/openai4/init.js" th:src="@{/openai/openai4/init.js(v=${version})}"></script>
+</body>
+
+</html>

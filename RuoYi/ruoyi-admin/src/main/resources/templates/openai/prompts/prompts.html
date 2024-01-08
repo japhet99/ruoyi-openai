@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('prompts列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <label>类型：</label>
+                                <input type="text" name="tId"/>
+                            </li>
+                            <li>
+                                <label>ChatGPT 模型：</label>
+                                <input type="text" name="model"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="system:prompts:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="system:prompts:edit">
+                    <i class="fa fa-edit"></i> 修改
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:prompts:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:prompts:export">
+                    <i class="fa fa-download"></i> 导出
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('system:prompts:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('system:prompts:remove')}]];
+        var prefix = ctx + "system/prompts";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                modalName: "prompts",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'id',
+                    title: 'id',
+                    visible: false
+                },
+                {
+                    field: 'tId',
+                    title: '类型'
+                },
+                {
+                    field: 'title',
+                    title: '标题'
+                },
+                {
+                    field: 'prompts',
+                    title: '内容',
+                    formatter: function(value, row, index) {
+                        if (value.length > 100) { // 如果长度大于 100，就截取前 100 个字符并显示省略号
+                            return value.substring(0, 100) + '...';
+                        } else { // 否则直接返回原始值
+                            return value;
+                        }
+                    }
+                },
+                {
+                    field: 'firstContent',
+                    title: '第一句内容',
+                    formatter: function(value, row, index) {
+                        if (value.length > 100) { // 如果长度大于 100，就截取前 100 个字符并显示省略号
+                            return value.substring(0, 100) + '...';
+                        } else { // 否则直接返回原始值
+                            return value;
+                        }
+                    }
+                },
+                {
+                    field: 'inputPlaceholder',
+                    title: '发送的提示内容'
+                },
+                {
+                    field: 'icon',
+                    title: '模型图片',
+                    formatter: function(value, row, index) {
+                        return "<img src='"+value+"' width='50px' height='50px'/>";
+                    }
+                },
+                {
+                    field: 'model',
+                    title: 'ChatGPT 模型'
+                },
+                {
+                    field: 'maxTokens',
+                    title: 'max_tokens'
+                },
+                {
+                    field: 'temperature',
+                    title: 'temperature'
+                },
+                {
+                    field: 'topP',
+                    title: 'top_p'
+                },
+                {
+                    field: 'presencePenalty',
+                    title: 'presence_penalty'
+                },
+                {
+                    field: 'frequencyPenalty',
+                    title: 'frequency_penalty'
+                },
+                {
+                    field: 'stream',
+                    title: 'stream  0:true  1:false'
+                },
+                {
+                    field: 'sort',
+                    title: '排序'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+    </script>
+</body>
+</html>

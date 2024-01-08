@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.openai.mapper.OpenaiDeptCodeMapper">
+    
+    <resultMap type="OpenaiDeptCode" id="OpenaiDeptCodeResult">
+        <result property="id"    column="id"    />
+        <result property="companyId"    column="company_id"    />
+        <result property="code"    column="code"    />
+        <result property="userId"    column="user_id"    />
+        <result property="status"    column="status"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="updateBy"    column="update_by"    />
+    </resultMap>
+
+    <sql id="selectOpenaiDeptCodeVo">
+        select id,company_id, code, user_id, status, create_time, update_time, create_by, update_by from openai_dept_code
+    </sql>
+
+    <select id="selectOpenaiDeptCodeList" parameterType="OpenaiDeptCode" resultMap="OpenaiDeptCodeResult">
+        <include refid="selectOpenaiDeptCodeVo"/>
+        <where>
+            <if test="companyId != null "> and company_id = #{companyId}</if>
+            <if test="code != null  and code != ''"> and code = #{code}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectOpenaiDeptCodeById" parameterType="Long" resultMap="OpenaiDeptCodeResult">
+        <include refid="selectOpenaiDeptCodeVo"/>
+        where id = #{id}
+    </select>
+
+
+    <select id="selectOpenaiDeptCodeByUserId" parameterType="Long" resultMap="OpenaiDeptCodeResult">
+        <include refid="selectOpenaiDeptCodeVo"/>
+        where user_id = #{userId}
+    </select>
+
+        
+    <insert id="insertOpenaiDeptCode" parameterType="OpenaiDeptCode" useGeneratedKeys="true" keyProperty="id">
+        insert into openai_dept_code
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyId != null">company_id,</if>
+            <if test="code != null and code != ''">code,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="status != null">status,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateBy != null">update_by,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="companyId != null">#{companyId},</if>
+            <if test="code != null and code != ''">#{code},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+         </trim>
+    </insert>
+
+    <update id="updateOpenaiDeptCode" parameterType="OpenaiDeptCode">
+        update openai_dept_code
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyId != null">company_id = #{companyId},</if>
+            <if test="code != null and code != ''">code = #{code},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteOpenaiDeptCodeById" parameterType="Long">
+        delete from openai_dept_code where id = #{id}
+    </delete>
+
+    <delete id="deleteOpenaiDeptCodeByIds" parameterType="String">
+        delete from openai_dept_code where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

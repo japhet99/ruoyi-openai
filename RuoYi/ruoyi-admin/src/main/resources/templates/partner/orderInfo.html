@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>用户订单列表</title>
+	<link th:href="@{/css/layui.css}" rel="stylesheet"/>
+	<script th:src="@{/js/jquery.min.js}"></script>
+	<script th:src="@{/js/layui.js}"></script>
+</head>
+<body>
+
+<div class="layui-row">
+	<div class="layui-col-md12">
+		<table id="demo2"></table>
+	</div>
+</div>
+
+<script th:inline="none">
+
+	layui.use('table', function(){
+		var table = layui.table
+				, $ = layui.$;
+
+		table.render({
+			elem: '#demo2'
+			,height:460
+			,url: '/partner/orderList' //数据接口
+			,page: true //开启分页
+			// ,where: {"pageNo":1,"pageSize":10}
+			,cols: [[ //表头
+				{field: 'name', title: '姓名' }
+				,{field: 'planName', title: '套餐'}
+				,{field: 'status', title: '状态'}
+				,{field: 'createTime', title: '创建时间'}
+			]]
+			,done: function (res) { // 隐藏列
+			}
+		});
+
+	});
+
+</script>
+
+</body>
+</html>

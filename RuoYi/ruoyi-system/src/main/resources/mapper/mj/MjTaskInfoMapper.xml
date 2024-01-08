@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mj.mapper.MjTaskInfoMapper">
+    
+    <resultMap type="MjTaskInfo" id="MjTaskInfoResult">
+        <result property="id"    column="id"    />
+        <result property="companyId"    column="company_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="taskId"    column="task_id"    />
+        <result property="prompt"    column="prompt"    />
+        <result property="taskUrl"    column="task_url"    />
+        <result property="type"    column="type"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="parentPhoto"    column="parent_photo"    />
+        <result property="parentIndex"    column="parent_index"    />
+        <result property="state"    column="state"    />
+        <result property="action"    column="action"    />
+        <result property="status"    column="status"    />
+        <result property="finishTime"    column="finish_time"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="updateBy"    column="update_by"    />
+    </resultMap>
+
+    <sql id="selectMjTaskInfoVo">
+        select id, company_id, user_id, task_id, prompt, task_url, type, parent_id, parent_photo, parent_index, state, action, status, finish_time, create_time, update_time, create_by, update_by from mj_task_info
+    </sql>
+
+    <select id="selectMjTaskInfoList" parameterType="MjTaskInfo" resultMap="MjTaskInfoResult">
+        <include refid="selectMjTaskInfoVo"/>
+        <where>  
+            <if test="companyId != null "> and company_id = #{companyId}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="taskId != null  and taskId != ''"> and task_id = #{taskId}</if>
+            <if test="prompt != null  and prompt != ''"> and prompt = #{prompt}</if>
+            <if test="taskUrl != null  and taskUrl != ''"> and task_url = #{taskUrl}</if>
+            <if test="type != null "> and type = #{type}</if>
+            <if test="parentId != null  and parentId != ''"> and parent_id = #{parentId}</if>
+            <if test="parentPhoto != null  and parentPhoto != ''"> and parent_photo = #{parentPhoto}</if>
+            <if test="parentIndex != null "> and parent_index = #{parentIndex}</if>
+            <if test="state != null  and state != ''"> and state = #{state}</if>
+            <if test="action != null  and action != ''"> and action = #{action}</if>
+            <if test="status != null ">
+                <choose>
+                    <when test="status==1">
+                        and status in (0,1)
+                    </when>
+                    <otherwise>
+                        and status = #{status}
+                    </otherwise>
+                </choose>
+             </if>
+            <if test="finishTime != null "> and finish_time = #{finishTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectMjTaskInfoById" parameterType="Long" resultMap="MjTaskInfoResult">
+        <include refid="selectMjTaskInfoVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectMjTaskInfoByTaskId" parameterType="String" resultMap="MjTaskInfoResult">
+        <include refid="selectMjTaskInfoVo"/>
+        where task_id = #{taskId} limit 1
+    </select>
+
+        
+    <insert id="insertMjTaskInfo" parameterType="MjTaskInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into mj_task_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyId != null">company_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="taskId != null and taskId != ''">task_id,</if>
+            <if test="prompt != null and prompt != ''">prompt,</if>
+            <if test="taskUrl != null">task_url,</if>
+            <if test="type != null">type,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="parentPhoto != null">parent_photo,</if>
+            <if test="parentIndex != null">parent_index,</if>
+            <if test="state != null">state,</if>
+            <if test="action != null">action,</if>
+            <if test="status != null">status,</if>
+            <if test="finishTime != null">finish_time,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateBy != null">update_by,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="companyId != null">#{companyId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="taskId != null and taskId != ''">#{taskId},</if>
+            <if test="prompt != null and prompt != ''">#{prompt},</if>
+            <if test="taskUrl != null">#{taskUrl},</if>
+            <if test="type != null">#{type},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="parentPhoto != null">#{parentPhoto},</if>
+            <if test="parentIndex != null">#{parentIndex},</if>
+            <if test="state != null">#{state},</if>
+            <if test="action != null">#{action},</if>
+            <if test="status != null">#{status},</if>
+            <if test="finishTime != null">#{finishTime},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMjTaskInfo" parameterType="MjTaskInfo">
+        update mj_task_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyId != null">company_id = #{companyId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="taskId != null and taskId != ''">task_id = #{taskId},</if>
+            <if test="prompt != null and prompt != ''">prompt = #{prompt},</if>
+            <if test="taskUrl != null">task_url = #{taskUrl},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="parentPhoto != null">parent_photo = #{parentPhoto},</if>
+            <if test="parentIndex != null">parent_index = #{parentIndex},</if>
+            <if test="state != null">state = #{state},</if>
+            <if test="action != null">action = #{action},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="finishTime != null">finish_time = #{finishTime},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMjTaskInfoById" parameterType="Long">
+        delete from mj_task_info where id = #{id}
+    </delete>
+
+    <delete id="deleteMjTaskInfoByIds" parameterType="String">
+        delete from mj_task_info where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

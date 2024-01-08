@@ -1,0 +1,215 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>概览</title>
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport"/>
+
+    <link href="../static/css/layui.css" th:href="@{/css/partner.css}" rel="stylesheet"/>
+    <link href="../static/css/layui.css" th:href="@{/css/layui.css}" rel="stylesheet"/>
+    <script src="../static/js/jquery.min.js" th:src="@{/js/jquery.min.js}"></script>
+    <script src="../static/js/layui.js" th:src="@{/js/layui.js}"></script>
+
+</head>
+<body onLoad= "javascript:window.resizeTo(screen.availWidth,screen.availHeight);window.moveTo(0,0) ">
+<section class="jq22-flexView jq22-head-bj-one">
+    <header class="jq22-navBar jq22-navBar-fixed jq22-navBar-chang">
+        <a href="javascript:void(0);" class="jq22-navBar-item">
+            <i class="icon icon-return"></i>
+        </a>
+        <div class="jq22-center">
+            <span class="jq22-center-title">概览</span>
+        </div>
+        <a href="javascript:void(0);" class="jq22-navBar-item">
+            <i class="icon "></i>
+        </a>
+    </header>
+    <section class="jq22-scrollView">
+        <div class="jq22-flex">
+            <div class="jq22-flex-box">
+                <h2>人流实时监测</h2>
+            </div>
+        </div>
+        <div class="jq22-palace">
+            <a href="/partner/userInfo" class="jq22-palace-grid">
+                <h2 id="userInfoCount">0</h2>
+                <p>总注册人数</p>
+            </a>
+            <a href="/partner/orderInfo" class="jq22-palace-grid">
+                <h2 id="orderCount">0</h2>
+                <p>总订单数（含未支付订单）</p>
+            </a>
+            <a href="javascript:;" class="jq22-palace-grid">
+                <h2 id="orderSuccessCount">0</h2>
+                <p>总成功订单金额</p>
+            </a>
+        </div>
+        <div class="divHeight"></div>
+        <div class="jq22-list-g2">
+            <div class="divHeight"></div>
+            <div class=" layui-row " style="display: flex;align-items: center" id="test-range">
+                <div class="layui-input-inline ">
+                    <input type="text" id="begin" class="layui-input" placeholder="开始时间">
+                </div>
+                <div class="">到</div>
+                <div class="layui-input-inline">
+                    <input type="text" id="end" class="layui-input" placeholder="结束时间">
+                </div>
+            </div>
+            <div class="divHeight"></div>
+            <div id="myChart" style="width: auto;height:600px;"></div>
+        </div>
+        <div class="divHeight"></div>
+    </section>
+</section>
+
+<script th:src="@{/openai/js/echarts.min.js}"></script>
+<script>
+    let a = getOneMonthAgo(1);
+    let b = getCurrentDateTime();
+    $("#begin").val(a);
+    $("#end").val(b);
+    getChartList(a,b);
+
+    function getChartList(beginTime,endTime){
+        var data = {};
+        data.begin = beginTime;
+        data.end = endTime;
+        $.ajax({
+            type: "post",
+            url: "/partner/data",
+            data: data,
+            dataType: 'json',
+            success: function(result) {
+                if(result.code==0){
+                    getChart(result)
+                }else{
+                    alert(result.msg);
+                }
+            },
+            error: function(error) {
+                alert("网络错误");
+            }
+        });
+    }
+
+
+    function getChart(result) {
+
+        $("#userInfoCount").text(result['data']['userInfoCount']);
+        $("#orderCount").text(result['data']['orderCount']);
+        $("#orderSuccessCount").text(result['data']['orderSuccessCount']+"元");
+
+        // 基于准备好的DOM，初始化 ECharts 实例
+        var myChart = echarts.init(document.getElementById('myChart'));
+
+        let everyDayRegister = result['data']['everyDayRegister'];
+        let everyDayOrder = result['data']['everyDayOrder'];
+        let everyDayActive = result['data']['everyDayActive'];
+
+        // 定义数据
+        var data1 = [];
+        var data2 = [];
+        var data3 = [];
+
+        //定义日期
+        var data = [];
+
+        for (let i = 0; i < everyDayActive.length; i++) {
+            data1.push(everyDayRegister[i]['count']);
+            data2.push(everyDayOrder[i]['count']);
+            data3.push(everyDayActive[i]['count']);
+            data.push(everyDayRegister[i]['date']);
+        }
+
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: '实时统计图'
+            },
+            xAxis: {
+                type: 'category',
+                data: data
+            },
+            yAxis: {
+                type: 'value'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['注册人数', '订单数（包含未支付）', '活跃数']
+            },
+            series: [{
+                name: '注册人数',
+                type: 'line',
+                data: data1
+            }, {
+                name: '订单数（包含未支付）',
+                type: 'line',
+                data: data2
+            }, {
+                name: '活跃数',
+                type: 'line',
+                data: data3
+            }]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+
+    }
+
+    layui.use(['laydate'], function(){
+        var laydate = layui.laydate;
+
+        laydate.render({
+            elem: '#test-range' ,//指定元素
+            type:'datetime',
+            range:['#begin','#end'],
+            min: getOneMonthAgo(12), // 最小可选日期为一个月前的日期
+            max: getCurrentDateTime(), // 最大可选日期为当前日期时间
+            done: function(value, date, endDate){
+                // value 即为时间范围的值，格式为"yyyy-MM-dd ~ yyyy-MM-dd"
+                // 在这里可以编写对时间范围值变化的处理逻辑
+                var beginTime = value.split(' - ')[0]; // 获取开始时间
+                var endTime = value.split(' - ')[1]; // 获取结束时间
+                if(value==""){
+                    beginTime = getOneMonthAgo(1);
+                    endTime =  getCurrentDateTime();
+                }
+                getChartList(beginTime,endTime);
+            }
+        });
+
+    });
+
+
+
+    function getOneMonthAgo(month) {
+        var currentDate = new Date();
+        currentDate.setMonth(currentDate.getMonth() - month);
+        return formatDateTime(currentDate);
+    }
+
+    function getCurrentDateTime() {
+        var currentDate = new Date();
+        return formatDateTime(currentDate);
+    }
+
+    function formatDateTime(date) {
+        var year = date.getFullYear();
+        var month = padZero(date.getMonth() + 1);
+        var day = padZero(date.getDate());
+        var hours = padZero(date.getHours());
+        var minutes = padZero(date.getMinutes());
+        var seconds = padZero(date.getSeconds());
+        return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
+    }
+
+    function padZero(num) {
+        return num < 10 ? '0' + num : num;
+    }
+
+</script>
+</body>
+</html>

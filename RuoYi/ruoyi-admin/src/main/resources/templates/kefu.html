@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>客服</title>
+    <meta name="viewport" content="width=device-width, initial-scale=2.0,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
+
+    <link href="../static/openai/css/tailwind.css" th:href="@{/openai/css/tailwind.css}" rel="stylesheet"/>
+</head>
+<body>
+<div>
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h2 class="text-center text-4xl">扫码咨询,了解更多信息</h2>
+                    </div>
+                    <br>
+                    <div class="ibox-content">
+                        <p id="qrcode" class="flex flex-col items-center md:flex-row md:justify-center">
+
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="../static/js/jquery.min.js" th:src="@{/js/jquery.min.js}"></script>
+<script>
+    getKF()
+    function getKF() {
+        let prefix = window.location.hostname;
+        $.ajax({
+            type: "post",
+            url: "/kf",
+            data: {"prefix":prefix},
+            dataType: 'json',
+            success: function(result) {
+                for (let i = 0; i < result.data.length; i++) {
+                    $("#qrcode").append('<div  style="height:300px;width: 300px;" "><img style="height:300px;width: 300px;" src='+result.data[i].dictValue+' alt='+result.data[i].dictLabel+'></div>')
+                }
+            },
+            error: function(error) {
+
+            }
+        });
+
+    }
+</script>
+</body>
+</html>

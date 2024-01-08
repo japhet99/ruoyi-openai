@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.openai.mapper.OpenaiChatOrderMapper">
+    
+    <resultMap type="OpenaiChatOrder" id="OpenaiChatOrderResult">
+        <result property="id"    column="id"    />
+        <result property="companyId"    column="company_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="orderId"    column="order_id"    />
+        <result property="payId"    column="pay_id"    />
+        <result property="type"    column="type"    />
+        <result property="planId"    column="plan_id"    />
+        <result property="orderPrice"    column="order_price"    />
+        <result property="payPrice"    column="pay_price"    />
+        <result property="status"    column="status"    />
+        <result property="payTime"    column="pay_time"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="updateBy"    column="update_by"    />
+    </resultMap>
+
+    <sql id="selectOpenaiChatOrderVo">
+        select id,company_id, user_id,plan_id,order_id, pay_id, type , order_price, pay_price, status, pay_time, create_time, update_time, create_by, update_by from openai_chat_order
+    </sql>
+
+    <select id="selectOpenaiChatOrderList" parameterType="OpenaiChatOrder" resultMap="OpenaiChatOrderResult">
+        <include refid="selectOpenaiChatOrderVo"/>
+        <where>
+            <if test="companyId != null "> and company_id = #{companyId}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="payId != null  and payId != ''"> and pay_id = #{payId}</if>
+            <if test="orderId != null  and orderId != ''"> and order_id = #{orderId}</if>
+            <if test="planId != null "> and plan_id = #{planId}</if>
+            <if test="type != null "> and type = #{type}</if>
+            <if test="orderPrice != null "> and order_price = #{orderPrice}</if>
+            <if test="payPrice != null "> and pay_price = #{payPrice}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="payTime != null "> and pay_time = #{payTime}</if>
+
+        </where>
+    </select>
+    
+    <select id="selectOpenaiChatOrderById" parameterType="Long" resultMap="OpenaiChatOrderResult">
+        <include refid="selectOpenaiChatOrderVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertOpenaiChatOrder" parameterType="OpenaiChatOrder" useGeneratedKeys="true" keyProperty="id">
+        insert into openai_chat_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyId != null">company_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="payId != null and payId != ''">pay_id,</if>
+            <if test="orderId != null and orderId != ''">order_id,</if>
+            <if test="planId != null ">plan_id,</if>
+            <if test="type != null ">type,</if>
+            <if test="orderPrice != null">order_price,</if>
+            <if test="payPrice != null">pay_price,</if>
+            <if test="status != null">status,</if>
+            <if test="payTime != null">pay_time,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateBy != null">update_by,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="companyId != null">#{companyId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="payId != null and payId != ''">#{payId},</if>
+            <if test="orderId != null and orderId != ''">#{orderId},</if>
+            <if test="planId != null">#{planId},</if>
+            <if test="type != null">#{type},</if>
+            <if test="orderPrice != null">#{orderPrice},</if>
+            <if test="payPrice != null">#{payPrice},</if>
+            <if test="status != null">#{status},</if>
+            <if test="payTime != null">#{payTime},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+         </trim>
+    </insert>
+
+    <update id="updateOpenaiChatOrder" parameterType="OpenaiChatOrder">
+        update openai_chat_order
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyId != null">company_id = #{companyId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="payId != null and payId != ''">pay_id = #{payId},</if>
+            <if test="orderId != null and orderId != ''">order_id = #{orderId},</if>
+            <if test="planId != null ">plan_id = #{planId},</if>
+            <if test="type != null ">type = #{type},</if>
+            <if test="orderPrice != null">order_price = #{orderPrice},</if>
+            <if test="payPrice != null">pay_price = #{payPrice},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="payTime != null">pay_time = #{payTime},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteOpenaiChatOrderById" parameterType="Long">
+        delete from openai_chat_order where id = #{id}
+    </delete>
+
+    <delete id="deleteOpenaiChatOrderByIds" parameterType="String">
+        delete from openai_chat_order where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+    <select id="selectOpenaiChatOrderListByUserId" parameterType="Long" resultMap="OpenaiChatOrderResult">
+        <include refid="selectOpenaiChatOrderVo"/>
+        where user_id = #{userId} and status = 1
+    </select>
+
+</mapper>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--360浏览器优先以webkit内核解析-->
+    <title>AI-Chat介绍</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link href="../static/css/font-awesome.min.css" th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+    <link href="../static/css/style.min.css" th:href="@{/css/style.min.css}" rel="stylesheet"/>
+</head>
+
+<body class="gray-bg">
+首页内容
+<div>
+    当前在线人数：<b id="perpeoCount"></b><br/>
+    当前在线人：<b id="perpeoName"></b>
+</div>
+<script src="/openai/openai4/jquery.min.js"></script>
+<script th:inline="javascript">
+    let perpeoCount = [[${perpeoCount}]];
+    let perpeoName = [[${perpeoName}]];
+    $("#perpeoCount").text(perpeoCount);
+    $("#perpeoName").html(perpeoName);
+
+</script>
+</body>
+</html>

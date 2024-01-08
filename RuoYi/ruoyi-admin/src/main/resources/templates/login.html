@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>登录AI-Chat系统</title>
+    <meta name="description" content="AI-Chat">
+    <!-- 360浏览器急速模式 -->
+    <meta name="renderer" content="webkit">
+    <!-- 避免IE使用兼容模式 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" href="../static/favicon.ico" th:href="@{favicon.ico}"/>
+    <style type="text/css">label.error { position:inherit;  }</style>
+    <script>
+        if(window.top!==window.self){alert('未登录或登录超时。请重新登录');window.top.location=window.location};
+    </script>
+
+    <link rel="stylesheet" href="/openai/openai4/h5-loading.css" />
+
+    <link href="../static/css/layui.css" th:href="@{/css/layui.css}" rel="stylesheet"/>
+
+    <link href="../static/css/login2.css" th:href="@{/css/login2.css}" rel="stylesheet"/>
+
+</head>
+<body>
+<div class="container">
+    <div class="forms-container">
+        <div class="signin-signup">
+            <form onsubmit="return false" class="sign-in-form">
+                <h2 class="title">Sign in</h2>
+                <div class="input-field">
+                    <i class="fas iconfont">&#xe631;</i>
+                    <input type="text" name="username" placeholder="用户账号" />
+                </div>
+                <span class="tips userName"></span>
+                <div class="input-field">
+                    <i class="fas iconfont">&#xe649;</i>
+                    <input type="password" name="password" placeholder="用户密码" />
+                </div>
+                <span class="tips password"></span>
+                <div class="input-code" >
+                    <div class="input-field-fix">
+                        <i class="fas iconfont">&#xe649;</i>
+                        <input type="text" name="code" placeholder="验证码" />
+                    </div>
+                    <img id="codeImg" src="" alt="验证码加载失败">
+                </div>
+
+                <input type="submit" id="signSubmit" value="登录" class="btn solid" />
+                <!--<p class="social-text" >暂未开放其它注册渠道</p>
+                 <div class="social-media">
+                   <a href="#" class="social-icon">
+                     <i class="fab fa-facebook-f"></i>
+                   </a>
+                   <a href="#" class="social-icon">
+                     <i class="fab fa-twitter"></i>
+                   </a>
+                   <a href="#" class="social-icon">
+                     <i class="fab fa-google"></i>
+                   </a>
+                   <a href="#" class="social-icon">
+                     <i class="fab fa-linkedin-in"></i>
+                   </a>
+                 </div> -->
+            </form>
+            <form onsubmit="return false" class="sign-up-form">
+                <h2 class="title">Sign up</h2>
+                <div class="input-field">
+                    <i class="fas iconfont">&#xe631;</i>
+                    <input type="text" name="account"  placeholder="账号" />
+                </div>
+                <span class="tips account"></span>
+                <div class="input-field">
+                    <i class="fas iconfont">&#xe649;</i>
+                    <input type="password" name="password" placeholder="密码" />
+                </div>
+                <span class="tips password"></span>
+                <div class="input-field">
+                    <i class="fas iconfont">&#xe60a;</i>
+                    <input type="password" name="repassword" placeholder="确认密码" />
+                </div>
+                <span class="tips repassword"></span>
+
+                <div class="input-field" style="display: none">
+                    <i class="fas iconfont">&#xe637;</i>
+                    <input type="text" name="inviteCode" placeholder="邀请码" />
+                </div>
+                <div style="display: flex;align-items: center;">
+                    <input type="checkbox" id="agreement"/>
+                    <label for="agreement" >
+                        我已阅读并同意<a class="super" th:href="@{/agreement}" >《用户协议及免责申明》</a>
+                    </label>
+                </div>
+                <div style="display: flex;align-items: center;">
+                    <label for="agreement" >
+                        <a class="super" th:href="@{/kefu}" >人工客服</a>
+                    </label>
+                </div>
+                <input type="submit" class="btn" id="register" value="注册" />
+                <!--  <p class="social-text">Or Sign up with social platforms</p>
+                 <div class="social-media">
+                   <a href="#" class="social-icon">
+                     <i class="fab fa-facebook-f"></i>
+                   </a>
+                   <a href="#" class="social-icon">
+                     <i class="fab fa-twitter"></i>
+                   </a>
+                   <a href="#" class="social-icon">
+                     <i class="fab fa-google"></i>
+                   </a>
+                   <a href="#" class="social-icon">
+                     <i class="fab fa-linkedin-in"></i>
+                   </a>
+                 </div> -->
+            </form>
+        </div>
+    </div>
+
+    <div class="panels-container">
+        <div class="panel left-panel">
+            <div class="content">
+                <h3>AI-Chat</h3>
+                <p>AI-Chat 3.5 / AI-Chat 4.0 聊天机器人</p>
+                <p>本站每天可以免费使用 AI-Chat 3.5 / AI-Chat 4.0</p>
+                <p>本站支持 电脑端、移动端、iPad</p>
+                <p>多种角色AI对话</p>
+                <p>学习、工作、生活都可以使用，效率直接翻倍</p>
+
+                <button class="btn transparent" id="sign-up-btn">
+                    没有账号,立即注册
+                </button>
+            </div>
+            <img src="../img/log.svg" th:src="@{/img/log.svg}" class="image" alt="" />
+        </div>
+        <div class="panel right-panel">
+            <div class="content">
+                <h3>AI-Chat</h3>
+                <p>本站集成AI-Chat 3.5 / AI-Chat4.0 聊天机器人</p>
+                <p>本站每天可以免费使用 AI-Chat 3.5 / AI-Chat 4.0</p>
+                <p>本站支持 电脑端、移动端、iPad</p>
+                <p>多种角色AI对话</p>
+                <p>学习、工作、生活都可以使用，效率直接翻倍</p>
+
+                <button class="btn transparent" id="sign-in-btn">
+                    已有账号,立即登录
+                </button>
+            </div>
+            <img src="../img/register.svg" th:src="@{/img/register.svg}" class="image" alt="" />
+        </div>
+    </div>
+</div>
+<script th:inline="javascript"> var ctx = [[@{/}]]; var captchaType = [[${captchaType}]]; </script>
+
+<script src="../static/js/jquery.min.js" th:src="@{/js/jquery.min.js}"></script>
+<script src="../openai/openai4/h5-loading.js"></script>
+<script src="../static/js/layui.js" th:src="@{/js/layui.js}"></script>
+<script src="../static/js/login2.js" th:src="@{/ruoyi/login2.js}"></script>
+<script src="../static/ruoyi/js/ry-ui.js" th:src="@{/ruoyi/js/ry-ui.js?v=4.7.7}"></script>
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
+    <meta charset="utf-8"/>
+    <title>价格</title>
+    <link rel="stylesheet" href="/openai/css/tailwind.css">
+    <link rel="stylesheet" href="/openai/css/animate.min.css">
+</head>
+
+<body>
+<style>
+    .product__card:hover {
+        /* transform: translateY(-10px); */
+        scale: 1.1;
+    }
+
+    .product__card {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    ul {
+        list-style: none;
+
+    }
+</style>
+<br><br>
+<div class="procuct__list grid grid-cols-1  gap-9 md:grid-cols-2 lg:grid-cols-3" id="append">
+
+</div>
+<script src="/openai/js/jquery.min.js"></script>
+<script src="/openai/js/price.js"></script>
+
+</body>
+
+</html>

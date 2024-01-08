@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.openai.mapper.OpenaiPromptsMapper">
+
+    <resultMap type="OpenaiPrompts" id="OpenaiPromptsResult">
+        <result property="id"    column="id"    />
+        <result property="companyId"    column="company_id"    />
+        <result property="tId"    column="t_id"    />
+        <result property="title"    column="title"    />
+        <result property="prompts"    column="prompts"    />
+        <result property="firstContent"    column="first_content"    />
+        <result property="inputPlaceholder"    column="input_placeholder"    />
+        <result property="icon"    column="icon"    />
+        <result property="model"    column="model"    />
+        <result property="maxTokens"    column="max_tokens"    />
+        <result property="temperature"    column="temperature"    />
+        <result property="topP"    column="top_p"    />
+        <result property="presencePenalty"    column="presence_penalty"    />
+        <result property="frequencyPenalty"    column="frequency_penalty"    />
+        <result property="stream"    column="stream"    />
+        <result property="status"    column="status"    />
+        <result property="sort"    column="sort"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="updateBy"    column="update_by"    />
+    </resultMap>
+
+    <sql id="selectOpenaiPromptsVo">
+        select id,company_id, t_id, title, prompts, first_content, input_placeholder, icon, model, max_tokens, temperature, top_p, presence_penalty, frequency_penalty, stream, status, sort, create_time, update_time, create_by, update_by from openai_prompts
+    </sql>
+
+    <select id="selectOpenaiPromptsList" parameterType="OpenaiPrompts" resultMap="OpenaiPromptsResult">
+        <include refid="selectOpenaiPromptsVo"/>
+        <where>
+            <if test="companyId != null "> and company_id = #{companyId}</if>
+            <if test="tId != null "> and t_id = #{tId}</if>
+            <if test="title != null  and title != ''"> and title like concat('%', #{title}, '%')</if>
+            <if test="prompts != null  and prompts != ''"> and prompts = #{prompts}</if>
+            <if test="firstContent != null  and firstContent != ''"> and first_content = #{firstContent}</if>
+            <if test="inputPlaceholder != null  and inputPlaceholder != ''"> and input_placeholder = #{inputPlaceholder}</if>
+            <if test="icon != null  and icon != ''"> and icon = #{icon}</if>
+            <if test="model != null  and model != ''"> and model = #{model}</if>
+            <if test="maxTokens != null "> and max_tokens = #{maxTokens}</if>
+            <if test="temperature != null "> and temperature = #{temperature}</if>
+            <if test="topP != null "> and top_p = #{topP}</if>
+            <if test="presencePenalty != null "> and presence_penalty = #{presencePenalty}</if>
+            <if test="frequencyPenalty != null "> and frequency_penalty = #{frequencyPenalty}</if>
+            <if test="stream != null "> and stream = #{stream}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="sort != null "> and sort = #{sort}</if>
+        </where>
+    </select>
+
+    <select id="selectOpenaiPromptsById" parameterType="Long" resultMap="OpenaiPromptsResult">
+        <include refid="selectOpenaiPromptsVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertOpenaiPrompts" parameterType="OpenaiPrompts" useGeneratedKeys="true" keyProperty="id">
+        insert into openai_prompts
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyId != null">company_id,</if>
+            <if test="tId != null">t_id,</if>
+            <if test="title != null">title,</if>
+            <if test="prompts != null">prompts,</if>
+            <if test="firstContent != null">first_content,</if>
+            <if test="inputPlaceholder != null">input_placeholder,</if>
+            <if test="icon != null">icon,</if>
+            <if test="model != null">model,</if>
+            <if test="maxTokens != null">max_tokens,</if>
+            <if test="temperature != null">temperature,</if>
+            <if test="topP != null">top_p,</if>
+            <if test="presencePenalty != null">presence_penalty,</if>
+            <if test="frequencyPenalty != null">frequency_penalty,</if>
+            <if test="stream != null">stream,</if>
+            <if test="status != null">status,</if>
+            <if test="sort != null">sort,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateBy != null">update_by,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="companyId != null">#{companyId},</if>
+            <if test="tId != null">#{tId},</if>
+            <if test="title != null">#{title},</if>
+            <if test="prompts != null">#{prompts},</if>
+            <if test="firstContent != null">#{firstContent},</if>
+            <if test="inputPlaceholder != null">#{inputPlaceholder},</if>
+            <if test="icon != null">#{icon},</if>
+            <if test="model != null">#{model},</if>
+            <if test="maxTokens != null">#{maxTokens},</if>
+            <if test="temperature != null">#{temperature},</if>
+            <if test="topP != null">#{topP},</if>
+            <if test="presencePenalty != null">#{presencePenalty},</if>
+            <if test="frequencyPenalty != null">#{frequencyPenalty},</if>
+            <if test="stream != null">#{stream},</if>
+            <if test="status != null">#{status},</if>
+            <if test="sort != null">#{sort},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+        </trim>
+    </insert>
+
+    <update id="updateOpenaiPrompts" parameterType="OpenaiPrompts">
+        update openai_prompts
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyId != null">company_id = #{companyId},</if>
+            <if test="tId != null">t_id = #{tId},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="prompts != null">prompts = #{prompts},</if>
+            <if test="firstContent != null">first_content = #{firstContent},</if>
+            <if test="inputPlaceholder != null">input_placeholder = #{inputPlaceholder},</if>
+            <if test="icon != null">icon = #{icon},</if>
+            <if test="model != null">model = #{model},</if>
+            <if test="maxTokens != null">max_tokens = #{maxTokens},</if>
+            <if test="temperature != null">temperature = #{temperature},</if>
+            <if test="topP != null">top_p = #{topP},</if>
+            <if test="presencePenalty != null">presence_penalty = #{presencePenalty},</if>
+            <if test="frequencyPenalty != null">frequency_penalty = #{frequencyPenalty},</if>
+            <if test="stream != null">stream = #{stream},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteOpenaiPromptsById" parameterType="Long">
+        delete from openai_prompts where id = #{id}
+    </delete>
+
+    <delete id="deleteOpenaiPromptsByIds" parameterType="String">
+        delete from openai_prompts where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

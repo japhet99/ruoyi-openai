@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.openai.mapper.OpenaiUserInfoMapper">
+
+    <resultMap type="OpenaiUserInfo" id="OpenaiUserInfoResult">
+        <result property="id"    column="id"    />
+        <result property="companyId"    column="company_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="code"    column="code"    />
+        <result property="ip"    column="ip"    />
+        <result property="freeTime"    column="free_time"    />
+        <result property="moneyTime"    column="money_time"    />
+        <result property="rechargeTime"    column="recharge_time"    />
+        <result property="expirationTime"    column="expiration_time"    />
+        <result property="moneyTimeFour"    column="money_time_four"    />
+        <result property="rechargeTimeFour"    column="recharge_time_four"    />
+        <result property="expirationTimeFour"    column="expiration_time_four"    />
+        <result property="mjFreeTime"    column="mj_free_time"    />
+        <result property="mjMoneyTime"    column="mj_money_time"    />
+        <result property="rechargeTimeMj"    column="recharge_time_mj"    />
+        <result property="dallETime"    column="dall_e_time"    />
+        <result property="rechargeTimeDallE"    column="recharge_time_dall_e"    />
+        <result property="money"    column="money"    />
+        <result property="freezeMoney"    column="freeze_money"    />
+        <result property="totalMoney"    column="total_money"    />
+        <result property="buyCount"    column="buy_count"    />
+        <result property="inviteCount"    column="invite_count"    />
+        <result property="read"    column="read"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="updateBy"    column="update_by"    />
+    </resultMap>
+
+    <sql id="selectOpenaiUserInfoVo">
+        select id,company_id, user_id, code, ip, free_time, money_time, recharge_time, expiration_time, money_time_four, recharge_time_four, expiration_time_four,mj_free_time,mj_money_time,recharge_time_mj, dall_e_time, recharge_time_dall_e,money,freeze_money,total_money,buy_count,invite_count,`read`, create_time, update_time, create_by, update_by from openai_user_info
+    </sql>
+
+    <select id="selectOpenaiUserInfoList" parameterType="OpenaiUserInfo" resultMap="OpenaiUserInfoResult">
+        <include refid="selectOpenaiUserInfoVo"/>
+        <where>
+            <if test="companyId != null "> and company_id = #{companyId}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="code != null  and code != ''"> and code = #{code}</if>
+            <if test="ip != null  and ip != ''"> and ip = #{ip}</if>
+            <if test="freeTime != null "> and free_time = #{freeTime}</if>
+            <if test="moneyTime != null "> and money_time = #{moneyTime}</if>
+            <if test="rechargeTime != null "> and recharge_time = #{rechargeTime}</if>
+            <if test="expirationTime != null "> and expiration_time = #{expirationTime}</if>
+            <if test="moneyTimeFour != null "> and money_time_four = #{moneyTimeFour}</if>
+            <if test="rechargeTimeFour != null "> and recharge_time_four = #{rechargeTimeFour}</if>
+            <if test="expirationTimeFour != null "> and expiration_time_four = #{expirationTimeFour}</if>
+        </where>
+    </select>
+
+    <select id="selectOpenaiUserInfoById" parameterType="Long" resultMap="OpenaiUserInfoResult">
+        <include refid="selectOpenaiUserInfoVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertOpenaiUserInfo" parameterType="OpenaiUserInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into openai_user_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyId != null">company_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="code != null and code != ''">code,</if>
+            <if test="ip != null and ip != ''">ip,</if>
+            <if test="freeTime != null">free_time,</if>
+            <if test="moneyTime != null">money_time,</if>
+            <if test="rechargeTime != null">recharge_time,</if>
+            <if test="expirationTime != null">expiration_time,</if>
+            <if test="moneyTimeFour != null">money_time_four,</if>
+            <if test="rechargeTimeFour != null">recharge_time_four,</if>
+            <if test="expirationTimeFour != null">expiration_time_four,</if>
+            <if test="mjFreeTime != null">mj_free_time,</if>
+            <if test="mjMoneyTime != null">mj_money_time,</if>
+            <if test="dallETime != null">dall_e_time,</if>
+            <if test="read != null">`read`,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateBy != null">update_by,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="companyId != null">#{companyId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="code != null and code != ''">#{code},</if>
+            <if test="ip != null and ip != ''">#{ip},</if>
+            <if test="freeTime != null">#{freeTime},</if>
+            <if test="moneyTime != null">#{moneyTime},</if>
+            <if test="rechargeTime != null">#{rechargeTime},</if>
+            <if test="expirationTime != null">#{expirationTime},</if>
+            <if test="moneyTimeFour != null">#{moneyTimeFour},</if>
+            <if test="rechargeTimeFour != null">#{rechargeTimeFour},</if>
+            <if test="expirationTimeFour != null">#{expirationTimeFour},</if>
+            <if test="mjFreeTime != null">#{mjFreeTime},</if>
+            <if test="mjMoneyTime != null">#{mjMoneyTime},</if>
+            <if test="dallETime != null">#{dallETime},</if>
+            <if test="read != null">#{read},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+        </trim>
+    </insert>
+
+    <update id="updateOpenaiUserInfo" parameterType="OpenaiUserInfo">
+        update openai_user_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyId != null">company_id = #{companyId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="code != null and code != ''">code = #{code},</if>
+            <if test="ip != null and ip != ''">ip = #{ip},</if>
+            <if test="freeTime != null">free_time = #{freeTime},</if>
+            <if test="moneyTime != null">money_time = #{moneyTime},</if>
+            <if test="rechargeTime != null">recharge_time = #{rechargeTime},</if>
+            <if test="expirationTime != null">expiration_time = #{expirationTime},</if>
+            <if test="moneyTimeFour != null">money_time_four = #{moneyTimeFour},</if>
+            <if test="rechargeTimeFour != null">recharge_time_four = #{rechargeTimeFour},</if>
+            <if test="expirationTimeFour != null">expiration_time_four = #{expirationTimeFour},</if>
+            <if test="mjFreeTime != null">mj_free_time = #{mjFreeTime},</if>
+            <if test="mjMoneyTime != null">mj_money_time = #{mjMoneyTime},</if>
+            <if test="rechargeTimeMj != null">recharge_time_mj = #{rechargeTimeMj},</if>
+            <if test="dallETime != null">dall_e_time = #{dallETime},</if>
+            <if test="rechargeTimeDallE != null">recharge_time_dall_e = #{rechargeTimeDallE},</if>
+            <if test="read != null">`read` = #{read},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteOpenaiUserInfoById" parameterType="Long">
+        delete from openai_user_info where id = #{id}
+    </delete>
+
+    <delete id="deleteOpenaiUserInfoByIds" parameterType="String">
+        delete from openai_user_info where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--邀请好友加免费次数-->
+    <update id="updateOpenaiUserInfoByFreeTime">
+        update openai_user_info set free_time = free_time+#{freeTime} where user_id = #{userId}
+    </update>
+
+    <!--3.5充值金额次数-->
+    <update id="updateOpenaiUserInfoByMoneyTime">
+        update openai_user_info set money_time = money_time+#{moneyTime} where user_id = #{userId}
+    </update>
+
+    <!--gpt4.0充值金额次数-->
+    <update id="updateOpenaiUserInfoByMoneyTimeFour">
+        update openai_user_info set money_time_four = money_time_four+#{moneyTime} where user_id = #{userId}
+    </update>
+
+    <!--MJ免费次数-->
+    <update id="updateOpenaiUserInfoByMJFreeTime">
+        update openai_user_info set mj_free_time = mj_free_time+#{mjFreeTime} where user_id = #{userId}
+    </update>
+
+    <!--MJ充值金额次数-->
+    <update id="updateOpenaiUserInfoByMJMoneyTime">
+        update openai_user_info set mj_money_time = mj_money_time+#{mjMoneyTime} where user_id = #{userId}
+    </update>
+
+    <!--DALL.E充值金额次数-->
+    <update id="updateOpenaiUserInfoByDallETime">
+        update openai_user_info set dall_e_time = dall_e_time+#{dallETime} where user_id = #{userId}
+    </update>
+
+    <!--好友分享佣金-->
+    <update id="updateOpenaiUserInfoByMoney">
+        update openai_user_info set money = money+#{inviteMoney} , total_money = total_money+#{inviteMoney}, buy_count = buy_count+1 where user_id = #{userId}
+    </update>
+
+    <!--好友分享次数-->
+    <update id="updateOpenaiUserInfoByBuyCount">
+        update openai_user_info set money = money+#{inviteMoney} , total_money = total_money+#{inviteMoney} , invite_count = invite_count+1 where user_id = #{userId}
+    </update>
+
+    <select id="selectOpenaiUserInfoByUserId" parameterType="Long" resultMap="OpenaiUserInfoResult">
+        <include refid="selectOpenaiUserInfoVo"/>
+        where user_id = #{id}
+    </select>
+    <select id="selectUserByIp" parameterType="java.lang.String" resultMap="OpenaiUserInfoResult" >
+        <include refid="selectOpenaiUserInfoVo"/>
+        where ip = #{ip} limit 1
+    </select>
+
+
+    <select id="selectOpenaiUserInfoListByPartner" resultType="map">
+        SELECT
+            date_range.date AS date,
+            COUNT(oui.id) AS count
+        FROM
+        (
+            SELECT
+                DATE(#{begin}) + INTERVAL t0.num DAY AS date
+            FROM
+            (SELECT (a.num + b.num + c.num + d.num + e.num) num
+                FROM
+                    (SELECT 0 num UNION ALL SELECT 1 num UNION ALL SELECT 2 num UNION ALL SELECT 3 num UNION ALL SELECT 4 num UNION ALL SELECT 5 num UNION ALL SELECT 6 num UNION ALL SELECT 7 num UNION ALL SELECT 8 num UNION ALL SELECT 9 num) a,
+                    (SELECT 0 num UNION ALL SELECT 10 num UNION ALL SELECT 20 num UNION ALL SELECT 30 num UNION ALL SELECT 40 num UNION ALL SELECT 50 num UNION ALL SELECT 60 num UNION ALL SELECT 70 num UNION ALL SELECT 80 num UNION ALL SELECT 90 num) b,
+                    (SELECT 0 num UNION ALL SELECT 100 num UNION ALL SELECT 200 num UNION ALL SELECT 300 num UNION ALL SELECT 400 num UNION ALL SELECT 500 num UNION ALL SELECT 600 num UNION ALL SELECT 700 num UNION ALL SELECT 800 num UNION ALL SELECT 900 num) c,
+                    (SELECT 0 num UNION ALL SELECT 1000 num UNION ALL SELECT 2000 num UNION ALL SELECT 3000 num UNION ALL SELECT 4000 num UNION ALL SELECT 5000 num UNION ALL SELECT 6000 num UNION ALL SELECT 7000 num UNION ALL SELECT 8000 num UNION ALL SELECT 9000 num) d,
+                    (SELECT 0 num UNION ALL SELECT 10000 num UNION ALL SELECT 20000 num UNION ALL SELECT 30000 num UNION ALL SELECT 40000 num UNION ALL SELECT 50000 num UNION ALL SELECT 60000 num UNION ALL SELECT 70000 num UNION ALL SELECT 80000 num UNION ALL SELECT 90000 num) e
+            ) t0
+            WHERE
+            DATE(#{begin}) + INTERVAL t0.num DAY <![CDATA[<=]]> #{end}
+        ) date_range
+        LEFT JOIN
+            openai_user_info oui ON date_range.date = DATE(oui.create_time) AND oui.company_id = #{companyId}
+        GROUP BY
+            date_range.date
+        ORDER BY
+            date_range.date ASC
+
+    </select>
+
+    <select id="selectOpenaiOrderInfoListByPartner" resultType="map">
+        SELECT
+            date_range.date AS date,
+            COUNT(oco.id) AS count
+        FROM
+        (
+            SELECT
+                DATE(#{begin}) + INTERVAL t0.num DAY AS date
+            FROM
+            (SELECT (a.num + b.num + c.num + d.num + e.num) num
+                FROM
+                    (SELECT 0 num UNION ALL SELECT 1 num UNION ALL SELECT 2 num UNION ALL SELECT 3 num UNION ALL SELECT 4 num UNION ALL SELECT 5 num UNION ALL SELECT 6 num UNION ALL SELECT 7 num UNION ALL SELECT 8 num UNION ALL SELECT 9 num) a,
+                    (SELECT 0 num UNION ALL SELECT 10 num UNION ALL SELECT 20 num UNION ALL SELECT 30 num UNION ALL SELECT 40 num UNION ALL SELECT 50 num UNION ALL SELECT 60 num UNION ALL SELECT 70 num UNION ALL SELECT 80 num UNION ALL SELECT 90 num) b,
+                    (SELECT 0 num UNION ALL SELECT 100 num UNION ALL SELECT 200 num UNION ALL SELECT 300 num UNION ALL SELECT 400 num UNION ALL SELECT 500 num UNION ALL SELECT 600 num UNION ALL SELECT 700 num UNION ALL SELECT 800 num UNION ALL SELECT 900 num) c,
+                    (SELECT 0 num UNION ALL SELECT 1000 num UNION ALL SELECT 2000 num UNION ALL SELECT 3000 num UNION ALL SELECT 4000 num UNION ALL SELECT 5000 num UNION ALL SELECT 6000 num UNION ALL SELECT 7000 num UNION ALL SELECT 8000 num UNION ALL SELECT 9000 num) d,
+                    (SELECT 0 num UNION ALL SELECT 10000 num UNION ALL SELECT 20000 num UNION ALL SELECT 30000 num UNION ALL SELECT 40000 num UNION ALL SELECT 50000 num UNION ALL SELECT 60000 num UNION ALL SELECT 70000 num UNION ALL SELECT 80000 num UNION ALL SELECT 90000 num) e
+            ) t0
+            WHERE
+            DATE(#{begin}) + INTERVAL t0.num DAY <![CDATA[<=]]> #{end}
+        ) date_range
+        LEFT JOIN
+        openai_chat_order oco
+        ON
+        date_range.date = DATE(oco.create_time) AND oco.company_id = #{companyId}
+        GROUP BY
+        date_range.date
+        ORDER BY
+        date_range.date ASC;
+    </select>
+
+
+    <select id="selectOpenaiActiveInfoListByPartner" resultType="map">
+        SELECT
+            date_range.date AS date,
+            COUNT(ocd.id) AS count
+        FROM
+            (
+            SELECT
+            DATE(#{begin}) + INTERVAL t0.num DAY AS date
+            FROM
+            (SELECT (a.num + b.num + c.num + d.num + e.num) num
+            FROM
+            (SELECT 0 num UNION ALL SELECT 1 num UNION ALL SELECT 2 num UNION ALL SELECT 3 num UNION ALL SELECT 4 num UNION ALL SELECT 5 num UNION ALL SELECT 6 num UNION ALL SELECT 7 num UNION ALL SELECT 8 num UNION ALL SELECT 9 num) a,
+            (SELECT 0 num UNION ALL SELECT 10 num UNION ALL SELECT 20 num UNION ALL SELECT 30 num UNION ALL SELECT 40 num UNION ALL SELECT 50 num UNION ALL SELECT 60 num UNION ALL SELECT 70 num UNION ALL SELECT 80 num UNION ALL SELECT 90 num) b,
+            (SELECT 0 num UNION ALL SELECT 100 num UNION ALL SELECT 200 num UNION ALL SELECT 300 num UNION ALL SELECT 400 num UNION ALL SELECT 500 num UNION ALL SELECT 600 num UNION ALL SELECT 700 num UNION ALL SELECT 800 num UNION ALL SELECT 900 num) c,
+            (SELECT 0 num UNION ALL SELECT 1000 num UNION ALL SELECT 2000 num UNION ALL SELECT 3000 num UNION ALL SELECT 4000 num UNION ALL SELECT 5000 num UNION ALL SELECT 6000 num UNION ALL SELECT 7000 num UNION ALL SELECT 8000 num UNION ALL SELECT 9000 num) d,
+            (SELECT 0 num UNION ALL SELECT 10000 num UNION ALL SELECT 20000 num UNION ALL SELECT 30000 num UNION ALL SELECT 40000 num UNION ALL SELECT 50000 num UNION ALL SELECT 60000 num UNION ALL SELECT 70000 num UNION ALL SELECT 80000 num UNION ALL SELECT 90000 num) e
+            ) t0
+            WHERE
+            DATE(#{begin}) + INTERVAL t0.num DAY <![CDATA[<=]]> #{end}
+            ) date_range
+            LEFT JOIN
+            openai_chat_detail ocd
+        ON
+            date_range.date = DATE(ocd.create_time) AND ocd.company_id = #{companyId}
+        GROUP BY
+            date_range.date
+        ORDER BY
+            date_range.date ASC;
+    </select>
+
+</mapper>
