@@ -1,7 +1,7 @@
-#### 介绍
-   RuoYi-OpenAI  是基于不分离应用若依框架拓展出来的一款产品， RuoYi + OpenAI  [演示地址](https://git.byabstudio.com)
+# 介绍
+   RuoYi-OpenAI  是基于不分离应用若依框架拓展出来的一款AI-Chat产品， RuoYi + OpenAI  [演示地址](https://git.byabstudio.com)
 
-#### 功能
+# 功能
   1. 支持多种大模型：
      + [OpenAI ChatGPT 系列模型](https://platform.openai.com/docs/guides/gpt/chat-completions-api)（支持 [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)）
      + [Anthropic Claude 系列模型](https://anthropic.com)
@@ -18,10 +18,20 @@
   
   5、支持用户邀请奖励、分佣
   
-  6、支持发布公告
+  6、支持发布公告等
+
+# 获取key
+
+   [获取api 秘钥 ](https://api.byabstudio.com/)
 
 
-#### 软件架构
+# 交流群
+
+添加QQ进群，请备注 "ruoyi-openai"：
+![be12c5d88f188b88ebc14fa6fd90716](https://github.com/japhet99/ruoyi-openai/assets/38454934/86d3560a-00aa-4ab0-a195-09a3f635bf8c)
+
+
+
+# 软件架构
 
   感谢若依框架   [若依官网](http://www.ruoyi.vip)
-
