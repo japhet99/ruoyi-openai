@@ -28,7 +28,7 @@
 # 交流群
 
 添加QQ进群，请备注 "ruoyi-openai"：
-![be12c5d88f188b88ebc14fa6fd90716](https://github.com/japhet99/ruoyi-openai/assets/38454934/86d3560a-00aa-4ab0-a195-09a3f635bf8c)
+![image](https://github.com/japhet99/ruoyi-openai/assets/38454934/c58931a7-d135-4804-b350-c008a7a1c03e)
 
 
 
