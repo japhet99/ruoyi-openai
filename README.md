@@ -45,7 +45,7 @@
  8. 这个时候发送内容会报错，因为需要配置key，如果你有官方的key，就把对应的url 和 key粘贴到sys_config表中，仔细看表，有注释，如果没有的话，可以去我这里购买key，比官方要便宜 [获取api 秘钥 ](https://api.byabstudio.com/) 
 
 
-# 打包
+# 地址
    1. 后台：http://localhost:1234/japhets
    2. 前台：http://localhost:1234
    3. 合伙人： http://localhost:1234/partner
