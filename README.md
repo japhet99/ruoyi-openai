@@ -44,6 +44,13 @@
  7. 打开浏览器访问 http://localhost:1234
  8. 这个时候发送内容会报错，因为需要配置key，如果你有官方的key，就把对应的url 和 key粘贴到sys_config表中，仔细看表，有注释，如果没有的话，可以去我这里购买key，比官方要便宜 [获取api 秘钥 ](https://api.byabstudio.com/) 
 
+
+# 打包
+   1. 后台：http://localhost:1234/japhets
+   2. 前台：http://localhost:1234
+   3. 合伙人： http://localhost:1234/partner
+   4. 支付对接： https://ypay.byabstudio.com （请联系我，我教你）
+
 # 打包
  1. 打包前修改配置内容是服务器上面的内容
  2. mvn clean package
