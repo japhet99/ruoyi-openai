@@ -1,5 +1,7 @@
 # 介绍
-   RuoYi-OpenAI  是基于不分离应用若依框架拓展出来的一款AI-Chat产品， RuoYi + OpenAI  [演示地址](https://git.byabstudio.com)
+   RuoYi-OpenAI  是基于不分离应用若依框架拓展出来的一款AI-Chat产品， RuoYi + OpenAI  [演示地址](https://git.byabstudio.com) 
+   
+   账号自己注册，如果提示“注册失败!请联系管理员或切换网络重试”  可以切换wifi或者流量，重新注册，因为每一个ip只能注册一个账号
 
 # 功能
   1. 支持多种大模型：
