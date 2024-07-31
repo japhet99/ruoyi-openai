@@ -56,7 +56,7 @@
  2. mvn clean package
 
 # 部署
- 1. 如果用的是我中转站的api就可以是国内的服务器，如果是用官方的api,就需要海外的服务器
+ 1. 如果用的是我中转站的api就可以是国内的服务器，如果是用官方的api,就需要海外的服务器，我用的是这里的服务器 https://www.qxqxa.com/aff/FKEXBKFS
  2. 服务器2c4g就够了
  3. 安装MySQL、jdk、运行jar包
  4. 解析域名
@@ -66,6 +66,9 @@
 
 添加QQ进群，请备注 "ruoyi-openai"：
 ![image](https://github.com/japhet99/ruoyi-openai/assets/38454934/c58931a7-d135-4804-b350-c008a7a1c03e)
+
+# 作者同款服务器
+https://www.qxqxa.com/aff/FKEXBKFS
 
 # 软件架构
 
